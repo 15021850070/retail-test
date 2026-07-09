@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI补货模型监控看板 - 优化版</title>
-  <!-- Chart.js CDN -->
+  <title>AI补货模型监控看板 - 完整版</title>
+  <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-  <!-- Font Awesome (icons) -->
+  <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
-    /* 全局基础 */
     * { margin: 0; padding: 0; box-sizing: border-box; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
@@ -17,11 +16,7 @@
       color: #333;
       padding: 20px;
     }
-    .dashboard {
-      max-width: 1440px;
-      margin: 0 auto;
-    }
-    /* 头部 */
+    .dashboard { max-width: 1440px; margin: 0 auto; }
     .header {
       background: #1677ff;
       color: #fff;
@@ -32,18 +27,8 @@
       align-items: center;
       margin-bottom: 24px;
     }
-    .header h1 {
-      font-size: 24px;
-      font-weight: 500;
-      margin: 0;
-    }
-    .header .badge {
-      background: rgba(255,255,255,0.2);
-      padding: 4px 12px;
-      border-radius: 20px;
-      font-size: 14px;
-    }
-    /* 卡片通用 */
+    .header h1 { font-size: 24px; font-weight: 500; margin: 0; }
+    .header .badge { background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 20px; font-size: 14px; }
     .card {
       background: #fff;
       border-radius: 12px;
@@ -52,9 +37,7 @@
       margin-bottom: 20px;
       transition: box-shadow 0.2s;
     }
-    .card:hover {
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
-    }
+    .card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.12); }
     .card-title {
       font-size: 16px;
       font-weight: 600;
@@ -64,13 +47,11 @@
       align-items: center;
       gap: 8px;
     }
-    .card-title i {
-      color: #1677ff;
-    }
-    /* KPI 概览行 */
+    .card-title i { color: #1677ff; }
+    /* KPI */
     .kpi-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 16px;
       margin-bottom: 24px;
     }
@@ -85,44 +66,16 @@
     .kpi-item.fixed { border-left-color: #ff7875; }
     .kpi-item.model { border-left-color: #52c41a; }
     .kpi-item.winner { border-left-color: #faad14; }
-    .kpi-label {
-      font-size: 13px;
-      color: #8c8c8c;
-      margin-bottom: 4px;
-    }
-    .kpi-value {
-      font-size: 28px;
-      font-weight: 700;
-      line-height: 1.2;
-    }
-    .kpi-sub {
-      font-size: 14px;
-      color: #666;
-      margin-top: 4px;
-    }
-    .kpi-change {
-      font-size: 14px;
-      font-weight: 600;
-      margin-left: 6px;
-    }
+    .kpi-label { font-size: 13px; color: #8c8c8c; margin-bottom: 4px; }
+    .kpi-value { font-size: 28px; font-weight: 700; line-height: 1.2; }
+    .kpi-sub { font-size: 14px; color: #666; margin-top: 4px; }
+    .kpi-change { font-size: 14px; font-weight: 600; margin-left: 6px; }
     .kpi-change.up { color: #52c41a; }
     .kpi-change.down { color: #ff4d4f; }
-    /* 两列布局 */
-    .row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-      margin-bottom: 20px;
-    }
-    @media (max-width: 768px) {
-      .row { grid-template-columns: 1fr; }
-    }
-    /* 图表容器 */
-    .chart-container {
-      position: relative;
-      height: 260px;
-    }
-    /* 洞察摘要 */
+    /* 布局 */
+    .row { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px; }
+    @media (max-width: 768px) { .row { grid-template-columns: 1fr; } }
+    .chart-container { position: relative; height: 260px; }
     .insight-box {
       background: #f6f8fa;
       border-radius: 10px;
@@ -130,86 +83,31 @@
       border-left: 4px solid #1677ff;
       margin-top: 12px;
     }
-    .insight-box strong {
-      color: #1f1f1f;
-    }
-    .insight-box ul {
-      margin: 8px 0 0 20px;
-      list-style: disc;
-      color: #555;
-    }
-    /* 预警对比卡 */
-    .alert-compare {
-      display: flex;
-      gap: 30px;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-    .alert-stat {
-      text-align: center;
-      padding: 12px 24px;
-      background: #fafafa;
-      border-radius: 8px;
-      min-width: 120px;
-    }
-    .alert-stat .num {
-      font-size: 32px;
-      font-weight: 700;
-    }
-    .alert-stat .label {
-      font-size: 14px;
-      color: #888;
-    }
+    .insight-box ul { margin: 8px 0 0 20px; list-style: disc; color: #555; }
+    /* 预警对比 */
+    .alert-compare { display: flex; gap: 30px; justify-content: center; flex-wrap: wrap; }
+    .alert-stat { text-align: center; padding: 12px 24px; background: #fafafa; border-radius: 8px; min-width: 120px; }
+    .alert-stat .num { font-size: 32px; font-weight: 700; }
+    .alert-stat .label { font-size: 14px; color: #888; }
     .alert-stat.fixed .num { color: #ff7875; }
     .alert-stat.model .num { color: #52c41a; }
     .alert-stat.improve .num { color: #faad14; }
-    /* 表格样式 */
-    .table-wrap {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-      border-collapse: collapse;
-      font-size: 14px;
-    }
-    th, td {
-      padding: 10px 12px;
-      border-bottom: 1px solid #f0f0f0;
-      text-align: left;
-    }
-    th {
-      background: #fafafa;
-      font-weight: 600;
-      color: #1f1f1f;
-    }
-    .tag {
-      display: inline-block;
-      padding: 2px 10px;
-      border-radius: 12px;
-      font-size: 12px;
-      font-weight: 500;
-    }
+    /* 表格 */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    th, td { padding: 10px 12px; border-bottom: 1px solid #f0f0f0; text-align: left; }
+    th { background: #fafafa; font-weight: 600; color: #1f1f1f; }
+    .tag { display: inline-block; padding: 2px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
     .tag-blue { background: #e6f7ff; color: #1677ff; }
     .tag-green { background: #f6ffed; color: #52c41a; }
     .tag-red { background: #fff2f0; color: #ff4d4f; }
     .tag-orange { background: #fff7e6; color: #fa8c16; }
     .tag-purple { background: #f9f0ff; color: #722ed1; }
-    /* 底部 */
-    .footer {
-      text-align: center;
-      color: #bbb;
-      font-size: 12px;
-      margin-top: 30px;
-      padding-top: 10px;
-      border-top: 1px solid #eee;
-    }
-    /* 标签页模拟 */
-    .tabs {
-      display: flex;
-      gap: 0;
-      margin-bottom: 24px;
-      border-bottom: 2px solid #f0f0f0;
-    }
+    .winner-model { background-color: #f6ffed !important; }
+    .winner-fixed { background-color: #fff2f0 !important; }
+    .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; }
+    /* 标签页 */
+    .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid #f0f0f0; }
     .tab {
       padding: 10px 24px;
       cursor: pointer;
@@ -223,20 +121,10 @@
       border-right: none;
       font-size: 15px;
     }
-    .tab.active {
-      color: #1677ff;
-      border-bottom-color: #1677ff;
-    }
-    .tab:hover {
-      color: #1677ff;
-    }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
-    /* 小改善标签 */
+    .tab.active { color: #1677ff; border-bottom-color: #1677ff; }
+    .tab:hover { color: #1677ff; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .improve-badge {
       background: #f6ffed;
       color: #52c41a;
@@ -247,6 +135,60 @@
       margin-left: 8px;
       border: 1px solid #b7eb8f;
     }
+    /* 筛选器 */
+    .filter-row {
+      display: flex;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      align-items: center;
+    }
+    .filter-row label { font-weight: 500; font-size: 14px; }
+    .filter-row select {
+      padding: 6px 12px;
+      border-radius: 6px;
+      border: 1px solid #ddd;
+      background: #fff;
+      font-size: 14px;
+    }
+    /* 计算过程卡片 */
+    .calc-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .calc-col {
+      border-radius: 8px;
+      padding: 16px;
+    }
+    .calc-col.fixed { background: #fff2f0; border: 1px solid #ffccc7; }
+    .calc-col.model { background: #f6ffed; border: 1px solid #b7eb8f; }
+    .calc-col h4 {
+      text-align: center;
+      border-bottom: 2px solid rgba(0,0,0,0.06);
+      padding-bottom: 8px;
+      margin-bottom: 12px;
+      font-size: 16px;
+    }
+    .calc-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 6px 0;
+      font-size: 14px;
+      border-bottom: 1px dashed #eee;
+    }
+    .calc-item .label { color: #666; }
+    .calc-item .value { font-weight: 600; font-family: monospace; }
+    .calc-total {
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 2px solid #333;
+      font-weight: 700;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+    }
+    .calc-total .value { color: #1677ff; }
   </style>
 </head>
 <body>
@@ -254,137 +196,146 @@
 
   <!-- 头部 -->
   <div class="header">
-    <h1><i class="fas fa-robot" style="margin-right: 12px;"></i>AI补货模型监控看板（优化版）</h1>
+    <h1><i class="fas fa-robot" style="margin-right: 12px;"></i>AI补货模型监控看板（完整版）</h1>
     <span class="badge"><i class="fas fa-calendar-alt"></i> 数据更新：今日</span>
   </div>
 
-  <!-- ===== KPI 概览 ===== -->
+  <!-- KPI -->
   <div class="kpi-row">
     <div class="kpi-item fixed">
-      <div class="kpi-label">固定策略 · 补销比达标率</div>
+      <div class="kpi-label">固定 · 补销比达标率</div>
       <div class="kpi-value">58.3%</div>
     </div>
     <div class="kpi-item model">
-      <div class="kpi-label">AI模型 · 补销比达标率</div>
+      <div class="kpi-label">AI · 补销比达标率</div>
       <div class="kpi-value">73.8%</div>
-      <div class="kpi-sub">
-        <span class="kpi-change up"><i class="fas fa-arrow-up"></i> +15.5 pp</span>
-      </div>
+      <div class="kpi-sub"><span class="kpi-change up"><i class="fas fa-arrow-up"></i> +15.5 pp</span></div>
     </div>
     <div class="kpi-item fixed">
-      <div class="kpi-label">固定策略 · 断货SKU数</div>
+      <div class="kpi-label">固定 · 断货SKU数</div>
       <div class="kpi-value">32</div>
     </div>
     <div class="kpi-item model">
-      <div class="kpi-label">AI模型 · 断货SKU数</div>
+      <div class="kpi-label">AI · 断货SKU数</div>
       <div class="kpi-value">18</div>
-      <div class="kpi-sub">
-        <span class="kpi-change down"><i class="fas fa-arrow-down"></i> -43.8%</span>
-      </div>
+      <div class="kpi-sub"><span class="kpi-change down"><i class="fas fa-arrow-down"></i> -43.8%</span></div>
     </div>
     <div class="kpi-item winner">
-      <div class="kpi-label">AI综合胜率（补销比更优）</div>
+      <div class="kpi-label">AI综合胜率</div>
       <div class="kpi-value">76.2%</div>
-      <div class="kpi-sub">较固定策略提升 <span class="kpi-change up">+22.1%</span></div>
+      <div class="kpi-sub">较固定 <span class="kpi-change up">+22.1%</span></div>
     </div>
   </div>
 
-  <!-- ===== 标签页 ===== -->
+  <!-- Tabs -->
   <div class="tabs">
     <button class="tab active" data-tab="overview">📊 总览对比</button>
+    <button class="tab" data-tab="detail">📋 明细对比</button>
+    <button class="tab" data-tab="calculation">⚙️ 计算过程</button>
     <button class="tab" data-tab="alert">⚠️ 监控预警</button>
-    <button class="tab" data-tab="insight">💡 执行洞察</button>
   </div>
 
-  <!-- ===== 总览对比 ===== -->
+  <!-- ========== TAB 1: 总览 ========== -->
   <div id="overview" class="tab-content active">
-    <!-- 第一行：补销比对比 + 分布 -->
     <div class="row">
       <div class="card">
         <div class="card-title"><i class="fas fa-chart-bar"></i> 补销比对比（按门店等级）</div>
-        <div class="chart-container">
-          <canvas id="chartTier"></canvas>
-        </div>
-        <div style="font-size:13px; color:#888; margin-top:8px; display:flex; gap:20px; justify-content:center;">
-          <span><span style="background:#ff7875; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 固定策略</span>
-          <span><span style="background:#52c41a; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> AI模型</span>
-          <span><span style="background:#faad14; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 理想区间 (0.9~1.1)</span>
+        <div class="chart-container"><canvas id="chartTier"></canvas></div>
+        <div style="font-size:13px; color:#888; margin-top:8px; text-align:center;">
+          <span style="background:#ff7875; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 固定 &nbsp;
+          <span style="background:#52c41a; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> AI &nbsp;
+          <span style="background:#faad14; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 理想区间
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><i class="fas fa-chart-pie"></i> 补销比分布（理想区间集中度）</div>
-        <div class="chart-container">
-          <canvas id="chartDistribution"></canvas>
-        </div>
+        <div class="card-title"><i class="fas fa-chart-pie"></i> 补销比分布（区间集中度）</div>
+        <div class="chart-container"><canvas id="chartDistribution"></canvas></div>
         <div style="font-size:13px; color:#888; margin-top:8px; text-align:center;">
-          <span class="improve-badge"><i class="fas fa-check-circle"></i> AI模型落在理想区间内占比 73.8%，高于固定的 58.3%</span>
+          <span class="improve-badge"><i class="fas fa-check-circle"></i> AI模型落在0.9~1.1占比 73.8%，高于固定的 58.3%</span>
         </div>
       </div>
     </div>
-    <!-- 第二行：雷达图 + 周转对比 -->
     <div class="row">
       <div class="card">
         <div class="card-title"><i class="fas fa-chart-radar"></i> 系数雷达图对比</div>
-        <div class="chart-container" style="height:280px;">
-          <canvas id="chartRadar"></canvas>
-        </div>
+        <div class="chart-container" style="height:280px;"><canvas id="chartRadar"></canvas></div>
         <div style="font-size:13px; color:#888; margin-top:8px; text-align:center;">
           <span class="improve-badge"><i class="fas fa-arrow-right"></i> AI在“库存健康”“季节性”维度优势明显</span>
         </div>
       </div>
       <div class="card">
         <div class="card-title"><i class="fas fa-clock"></i> 平均周转天数（按门店等级）</div>
-        <div class="chart-container">
-          <canvas id="chartTurnover"></canvas>
-        </div>
+        <div class="chart-container"><canvas id="chartTurnover"></canvas></div>
         <div style="font-size:13px; color:#888; margin-top:8px; text-align:center;">
           <span class="improve-badge"><i class="fas fa-arrow-down"></i> AI模型平均周转缩短 3.2 天</span>
         </div>
       </div>
     </div>
-    <!-- 洞察摘要（总览） -->
     <div class="insight-box">
       <strong><i class="fas fa-lightbulb" style="color:#faad14;"></i> 关键洞察（总览）</strong>
       <ul>
-        <li><strong>AI模型在A类门店效果最佳</strong>，补销比达标率提升 22 个百分点（56% → 78%）。</li>
-        <li><strong>Chase/BB 类商品</strong> AI建议量偏差仍较大（+12%），建议补充更多历史销售数据。</li>
-        <li>固定策略在 C 类店断货风险高（断货率 18%），AI 已将其降至 8%。</li>
+        <li><strong>AI模型在A类门店效果最佳</strong>，达标率提升 22 个百分点（56% → 78%）。</li>
+        <li><strong>Chase/BB 类商品</strong> AI建议量偏差仍较大（+12%），建议补充促销数据。</li>
+        <li>固定策略在 C 类店断货风险高（18%），AI 已降至 8%。</li>
       </ul>
     </div>
   </div>
 
-  <!-- ===== 监控预警 ===== -->
+  <!-- ========== TAB 2: 明细对比 ========== -->
+  <div id="detail" class="tab-content">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-list-ul"></i> 全量明细对比（门店 × SKU）</div>
+      <div class="table-wrap">
+        <table id="detailTable">
+          <thead>
+            <tr>
+              <th>门店</th>
+              <th>SKU</th>
+              <th>固定-补销比</th>
+              <th>AI-补销比</th>
+              <th>固定-建议量</th>
+              <th>AI-建议量</th>
+              <th>真实销售</th>
+              <th>固定-断货</th>
+              <th>AI-断货</th>
+              <th>更优策略</th>
+            </tr>
+          </thead>
+          <tbody id="detailBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 3: 计算过程 ========== -->
+  <div id="calculation" class="tab-content">
+    <div class="card">
+      <div class="card-title"><i class="fas fa-cogs"></i> 系数计算链路（选择门店 + SKU）</div>
+      <div class="filter-row">
+        <label>门店：<select id="storeSelect"></select></label>
+        <label>SKU：<select id="skuSelect"></select></label>
+        <button id="calcRefresh" style="padding:6px 16px; background:#1677ff; color:#fff; border:none; border-radius:6px; cursor:pointer;"><i class="fas fa-sync-alt"></i> 更新</button>
+      </div>
+      <div id="calcResult" class="calc-grid">
+        <!-- 动态渲染 -->
+      </div>
+    </div>
+  </div>
+
+  <!-- ========== TAB 4: 监控预警 ========== -->
   <div id="alert" class="tab-content">
     <div class="card">
       <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:#faad14;"></i> 预警总览</div>
       <div class="alert-compare">
-        <div class="alert-stat fixed">
-          <div class="num">42</div>
-          <div class="label">固定策略 · 预警SKU</div>
-          <div style="font-size:13px; color:#888;">占比 28.0%</div>
-        </div>
-        <div class="alert-stat model">
-          <div class="num">19</div>
-          <div class="label">AI模型 · 预警SKU</div>
-          <div style="font-size:13px; color:#888;">占比 12.7%</div>
-        </div>
-        <div class="alert-stat improve">
-          <div class="num">-54.8%</div>
-          <div class="label">预警减少幅度</div>
-          <div style="font-size:13px; color:#52c41a;"><i class="fas fa-check-circle"></i> 显著改善</div>
-        </div>
+        <div class="alert-stat fixed"><div class="num">42</div><div class="label">固定 · 预警SKU</div></div>
+        <div class="alert-stat model"><div class="num">19</div><div class="label">AI · 预警SKU</div></div>
+        <div class="alert-stat improve"><div class="num">-54.8%</div><div class="label">预警减少幅度</div></div>
       </div>
-      <!-- 预警明细表格 -->
-      <div style="margin-top: 20px;">
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
-          <span style="font-weight:600; font-size:15px;">固定策略预警明细（示例）</span>
-          <span class="tag tag-red">补货不足 28 条</span>
-        </div>
+      <div style="margin-top:20px;">
+        <div style="font-weight:600; font-size:15px; margin-bottom:10px;">固定策略预警明细（示例）</div>
         <div class="table-wrap">
           <table>
-            <thead>
-              <tr><th>门店</th><th>SKU</th><th>补销比</th><th>建议量</th><th>真实销售</th><th>预警方向</th><th>AI是否修正</th></tr>
-            </thead>
+            <thead><tr><th>门店</th><th>SKU</th><th>补销比</th><th>建议量</th><th>真实销售</th><th>预警方向</th><th>AI是否修正</th></tr></thead>
             <tbody>
               <tr><td>北京旗舰店 (A)</td><td>跑步鞋-I01</td><td style="color:#ff4d4f;">0.78</td><td>280</td><td>360</td><td><span class="tag tag-red">补货不足</span></td><td><span class="tag tag-green">是</span></td></tr>
               <tr><td>上海南京路店 (A)</td><td>篮球鞋-I02</td><td style="color:#ff4d4f;">0.82</td><td>340</td><td>415</td><td><span class="tag tag-red">补货不足</span></td><td><span class="tag tag-green">是</span></td></tr>
@@ -395,137 +346,275 @@
         </div>
       </div>
     </div>
-    <!-- 预警洞察 -->
     <div class="insight-box">
       <strong><i class="fas fa-lightbulb" style="color:#faad14;"></i> 预警洞察</strong>
       <ul>
-        <li>AI模型将预警SKU从 <strong>42</strong> 个降至 <strong>19</strong> 个，<span style="color:#52c41a;">降低 54.8%</span>。</li>
-        <li>在固定策略预警的SKU中，<strong>72% 被AI成功拉回理想区间</strong>（修正成功率）。</li>
-        <li>主要剩余预警集中在 <strong>C类门店的Chase/BB商品</strong>，建议针对性优化模型参数。</li>
+        <li>AI模型将预警SKU从 <strong>42</strong> 降至 <strong>19</strong>，<span style="color:#52c41a;">降低 54.8%</span>。</li>
+        <li>固定预警的SKU中，<strong>72% 被AI拉回理想区间</strong>（修正成功率）。</li>
+        <li>剩余预警集中在 <strong>C类门店的Chase/BB商品</strong>，建议针对性优化。</li>
       </ul>
     </div>
   </div>
 
-  <!-- ===== 执行洞察 ===== -->
-  <div id="insight" class="tab-content">
-    <div class="card">
-      <div class="card-title"><i class="fas fa-bullseye" style="color:#1677ff;"></i> 可执行建议</div>
-      <div style="display:grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-        <div style="background:#f6f8fa; border-radius:8px; padding:16px;">
-          <h3 style="font-size:15px; margin-bottom:8px;"><i class="fas fa-check-circle" style="color:#52c41a;"></i> 立即推广</h3>
-          <ul style="margin-left:18px; color:#444;">
-            <li><strong>A/B类门店</strong>：AI模型效果显著，建议全量切换。</li>
-            <li><strong>NOS类商品</strong>：固定策略偏差大，AI修正率达 85%，优先推广。</li>
-          </ul>
-        </div>
-        <div style="background:#fff7e6; border-radius:8px; padding:16px; border:1px solid #ffd591;">
-          <h3 style="font-size:15px; margin-bottom:8px;"><i class="fas fa-tools" style="color:#fa8c16;"></i> 待优化</h3>
-          <ul style="margin-left:18px; color:#444;">
-            <li><strong>Chase/BB 商品</strong>：AI偏差仍较大（+12%），建议补充促销活动数据。</li>
-            <li><strong>C类门店</strong>：断货率仍高于目标，需结合库存周转进一步调参。</li>
-          </ul>
-        </div>
-      </div>
-      <div style="margin-top:20px; background:#e6f7ff; border-radius:8px; padding:16px;">
-        <strong style="color:#1677ff;">下一步行动</strong>
-        <ul style="margin:8px 0 0 20px; color:#333;">
-          <li>4月30日前完成 A/B 类门店模型切换，预期补销比达标率提升至 82%。</li>
-          <li>针对 Chase/BB 商品，启动专项数据采集（促销力度、竞品价格）。</li>
-          <li>每周自动生成预警报告，推送至区域运营负责人。</li>
-        </ul>
-      </div>
-    </div>
-  </div>
-
   <div class="footer">
-    <i class="fas fa-database"></i> 数据基于模拟业务场景 · 仅供演示优化设计
+    <i class="fas fa-database"></i> 数据基于模拟业务场景 · 仅供演示
   </div>
 </div>
 
-<!-- ===== 图表脚本 ===== -->
 <script>
-  document.addEventListener('DOMContentLoaded', function() {
-    // ---- 标签页切换 ----
-    const tabs = document.querySelectorAll('.tab');
-    const contents = {
-      overview: document.getElementById('overview'),
-      alert: document.getElementById('alert'),
-      insight: document.getElementById('insight')
+  // ==============================
+  // 1. 模拟数据 (10门店 × 15SKU)
+  // ==============================
+  const stores = [
+    { id: 'S001', name: '北京旗舰店', tier: 'A' },
+    { id: 'S002', name: '上海南京路店', tier: 'A' },
+    { id: 'S003', name: '广州天河店', tier: 'A' },
+    { id: 'S004', name: '深圳万象城店', tier: 'A' },
+    { id: 'S005', name: '杭州西湖店', tier: 'B' },
+    { id: 'S006', name: '成都春熙店', tier: 'B' },
+    { id: 'S007', name: '武汉江汉店', tier: 'B' },
+    { id: 'S008', name: '重庆解放碑店', tier: 'B' },
+    { id: 'S009', name: '南京新街口店', tier: 'C' },
+    { id: 'S010', name: '西安钟楼店', tier: 'C' }
+  ];
+
+  const skus = [
+    { id: 'N01', name: '经典T恤-N01', type: 'NOS', category: '上装', season: '四季', basePrice: 299 },
+    { id: 'N02', name: '运动短裤-N02', type: 'NOS', category: '下装', season: '四季', basePrice: 399 },
+    { id: 'N03', name: '基础袜子-N03', type: 'NOS', category: '配件', season: '四季', basePrice: 69 },
+    { id: 'N04', name: '运动内衣-N04', type: 'NOS', category: '上装', season: '四季', basePrice: 199 },
+    { id: 'N05', name: '休闲帽-N05', type: 'NOS', category: '配件', season: '四季', basePrice: 149 },
+    { id: 'I01', name: '跑步鞋-I01', type: 'Inline', category: '鞋类', season: '春', basePrice: 899 },
+    { id: 'I02', name: '篮球鞋-I02', type: 'Inline', category: '鞋类', season: '秋', basePrice: 1099 },
+    { id: 'I03', name: '训练鞋-I03', type: 'Inline', category: '鞋类', season: '四季', basePrice: 799 },
+    { id: 'I04', name: '运动外套-I04', type: 'Inline', category: '上装', season: '秋', basePrice: 699 },
+    { id: 'I05', name: '运动长裤-I05', type: 'Inline', category: '下装', season: '四季', basePrice: 499 },
+    { id: 'C01', name: '限量联名-C01', type: 'Chase/BB', category: '鞋类', season: '限量', basePrice: 1599 },
+    { id: 'C02', name: '季节性跑鞋-C02', type: 'Chase/BB', category: '鞋类', season: '夏', basePrice: 1299 },
+    { id: 'C03', name: '复古篮球鞋-C03', type: 'Chase/BB', category: '鞋类', season: '限量', basePrice: 1199 },
+    { id: 'C04', name: '城市限定-C04', type: 'Chase/BB', category: '鞋类', season: '限量', basePrice: 1399 },
+    { id: 'C05', name: '环保系列-C05', type: 'Chase/BB', category: '上装', season: '限量', basePrice: 599 }
+  ];
+
+  // 生成随机销售和补货数据（保持一致性）
+  function seededRandom(seed) {
+    let s = seed;
+    return function() {
+      s = (s * 9301 + 49297) % 233280;
+      return s / 233280;
     };
-    tabs.forEach(tab => {
-      tab.addEventListener('click', function() {
-        tabs.forEach(t => t.classList.remove('active'));
-        this.classList.add('active');
-        Object.keys(contents).forEach(key => {
-          contents[key].classList.toggle('active', key === this.dataset.tab);
+  }
+
+  // 为每个门店+SKU生成一组数据
+  function generateData() {
+    const rows = [];
+    let seed = 12345;
+    stores.forEach(store => {
+      skus.forEach(sku => {
+        const rng = seededRandom(seed++);
+        const baseDemand = Math.round(200 + rng() * 400);
+        const fixedRatio = 0.7 + rng() * 0.8; // 0.7~1.5
+        const modelRatio = fixedRatio + (rng() - 0.5) * 0.4; // AI 略准
+        const realSales = Math.round(baseDemand * (0.8 + rng() * 0.4));
+        const fixedQty = Math.round(realSales * fixedRatio);
+        const modelQty = Math.round(realSales * modelRatio);
+        const fixedStockout = rng() < 0.15 ? true : false; // 15% 断货率
+        const modelStockout = rng() < 0.08 ? true : false;
+        const winner = Math.abs(modelRatio - 1) < Math.abs(fixedRatio - 1) ? 'AI' : '固定';
+        rows.push({
+          storeId: store.id,
+          storeName: store.name,
+          storeTier: store.tier,
+          skuId: sku.id,
+          skuName: sku.name,
+          skuType: sku.type,
+          fixedRatio: parseFloat(fixedRatio.toFixed(2)),
+          modelRatio: parseFloat(modelRatio.toFixed(2)),
+          fixedQty,
+          modelQty,
+          realSales,
+          fixedStockout,
+          modelStockout,
+          winner,
+          // 系数（用于计算过程）
+          fixedFactors: {
+            l4wWeight: 0.7, l7dWeight: 0.3,
+            discountMultiplier: 0.92, coreSizeMultiplier: 1.0,
+            fsaMultiplier: 1.1, wosMultiplier: 1.0,
+            lifecycleMultiplier: 1.0, chaseHealthMultiplier: 1.0,
+            trendMultiplier: 1.0, seasonMultiplier: 1.0,
+            forecast: baseDemand,
+            rawMin: baseDemand * 14,
+            totalMultiplier: 0.92 * 1.0 * 1.1 * 1.0 * 1.0 * 1.0 * 1.0 * 1.0
+          },
+          modelFactors: {
+            l4wWeight: 0.6, l7dWeight: 0.4,
+            discountMultiplier: 0.95, coreSizeMultiplier: 1.05,
+            fsaMultiplier: 1.2, wosMultiplier: 1.05,
+            lifecycleMultiplier: 1.1, chaseHealthMultiplier: 1.15,
+            trendMultiplier: 1.08, seasonMultiplier: 1.12,
+            forecast: Math.round(baseDemand * (0.9 + rng() * 0.2)),
+            rawMin: Math.round(baseDemand * (0.9 + rng() * 0.2) * 14),
+            totalMultiplier: 0.95 * 1.05 * 1.2 * 1.05 * 1.1 * 1.15 * 1.08 * 1.12
+          }
         });
       });
     });
+    return rows;
+  }
 
-    // ---- 通用颜色 ----
-    const fixedColor = '#ff7875';
-    const modelColor = '#52c41a';
-    const idealColor = '#faad14';
-    const bgFixed = 'rgba(255,120,117,0.2)';
-    const bgModel = 'rgba(82,196,26,0.2)';
+  const dataRows = generateData();
 
-    // ---- 1) 补销比对比（按门店等级） ----
-    const ctx1 = document.getElementById('chartTier').getContext('2d');
-    new Chart(ctx1, {
+  // ==============================
+  // 2. 渲染明细表格
+  // ==============================
+  function renderDetailTable() {
+    const tbody = document.getElementById('detailBody');
+    tbody.innerHTML = '';
+    dataRows.forEach(row => {
+      const tr = document.createElement('tr');
+      tr.className = row.winner === 'AI' ? 'winner-model' : 'winner-fixed';
+      tr.innerHTML = `
+        <td>${row.storeName} (${row.storeTier})</td>
+        <td>${row.skuName} <span class="tag tag-${row.skuType === 'NOS' ? 'blue' : row.skuType === 'Inline' ? 'purple' : 'orange'}">${row.skuType}</span></td>
+        <td>${row.fixedRatio}</td>
+        <td>${row.modelRatio}</td>
+        <td>${row.fixedQty}</td>
+        <td>${row.modelQty}</td>
+        <td>${row.realSales}</td>
+        <td>${row.fixedStockout ? '<span class="tag tag-red">是</span>' : '<span class="tag tag-green">否</span>'}</td>
+        <td>${row.modelStockout ? '<span class="tag tag-red">是</span>' : '<span class="tag tag-green">否</span>'}</td>
+        <td><span class="tag ${row.winner === 'AI' ? 'tag-green' : 'tag-red'}">${row.winner}</span></td>
+      `;
+      tbody.appendChild(tr);
+    });
+  }
+  renderDetailTable();
+
+  // ==============================
+  // 3. 计算过程 Tab
+  // ==============================
+  const storeSelect = document.getElementById('storeSelect');
+  const skuSelect = document.getElementById('skuSelect');
+  // 填充下拉
+  stores.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name + ' (' + s.tier + ')';
+    storeSelect.appendChild(opt);
+  });
+  skus.forEach(s => {
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name + ' (' + s.type + ')';
+    skuSelect.appendChild(opt);
+  });
+
+  function renderCalculation() {
+    const storeId = storeSelect.value;
+    const skuId = skuSelect.value;
+    const row = dataRows.find(r => r.storeId === storeId && r.skuId === skuId);
+    if (!row) {
+      document.getElementById('calcResult').innerHTML = '<div style="grid-column:1/3; text-align:center; padding:40px; color:#999;">未找到数据，请选择组合</div>';
+      return;
+    }
+    const fixed = row.fixedFactors;
+    const model = row.modelFactors;
+    // 定义显示项
+    const items = [
+      { label: 'L4W权重', fixedKey: 'l4wWeight', modelKey: 'l4wWeight' },
+      { label: 'L7D权重', fixedKey: 'l7dWeight', modelKey: 'l7dWeight' },
+      { label: '预测日需求 (Forecast)', fixedKey: 'forecast', modelKey: 'forecast' },
+      { label: '原始补货量 (Forecast×天数)', fixedKey: 'rawMin', modelKey: 'rawMin' },
+      { label: '折扣系数', fixedKey: 'discountMultiplier', modelKey: 'discountMultiplier' },
+      { label: '尺码系数', fixedKey: 'coreSizeMultiplier', modelKey: 'coreSizeMultiplier' },
+      { label: 'FSA系数', fixedKey: 'fsaMultiplier', modelKey: 'fsaMultiplier' },
+      { label: 'WOS系数', fixedKey: 'wosMultiplier', modelKey: 'wosMultiplier' },
+      { label: '生命周期系数', fixedKey: 'lifecycleMultiplier', modelKey: 'lifecycleMultiplier' },
+      { label: '库存健康系数', fixedKey: 'chaseHealthMultiplier', modelKey: 'chaseHealthMultiplier' },
+      { label: '趋势系数', fixedKey: 'trendMultiplier', modelKey: 'trendMultiplier' },
+      { label: '季节系数', fixedKey: 'seasonMultiplier', modelKey: 'seasonMultiplier' },
+    ];
+    let fixedHtml = '', modelHtml = '';
+    items.forEach(item => {
+      fixedHtml += `<div class="calc-item"><span class="label">${item.label}</span><span class="value">${fixed[item.fixedKey] !== undefined ? fixed[item.fixedKey] : '-'}</span></div>`;
+      modelHtml += `<div class="calc-item"><span class="label">${item.label}</span><span class="value">${model[item.modelKey] !== undefined ? model[item.modelKey] : '-'}</span></div>`;
+    });
+    // 总乘数乘积（为了演示，直接计算）
+    const fixedTotal = fixed.discountMultiplier * fixed.coreSizeMultiplier * fixed.fsaMultiplier * fixed.wosMultiplier *
+                       fixed.lifecycleMultiplier * fixed.chaseHealthMultiplier * fixed.trendMultiplier * fixed.seasonMultiplier;
+    const modelTotal = model.discountMultiplier * model.coreSizeMultiplier * model.fsaMultiplier * model.wosMultiplier *
+                       model.lifecycleMultiplier * model.chaseHealthMultiplier * model.trendMultiplier * model.seasonMultiplier;
+    const finalFixed = Math.round(fixed.rawMin * fixedTotal);
+    const finalModel = Math.round(model.rawMin * modelTotal);
+
+    document.getElementById('calcResult').innerHTML = `
+      <div class="calc-col fixed">
+        <h4>🔴 固定策略</h4>
+        ${fixedHtml}
+        <div class="calc-item" style="border-bottom:2px solid #333; padding-top:8px;"><span class="label">乘数因子乘积</span><span class="value">${fixedTotal.toFixed(3)}</span></div>
+        <div class="calc-total"><span>最终建议量</span><span class="value">${finalFixed}</span></div>
+      </div>
+      <div class="calc-col model">
+        <h4>🟢 AI模型</h4>
+        ${modelHtml}
+        <div class="calc-item" style="border-bottom:2px solid #333; padding-top:8px;"><span class="label">乘数因子乘积</span><span class="value">${modelTotal.toFixed(3)}</span></div>
+        <div class="calc-total"><span>最终建议量</span><span class="value">${finalModel}</span></div>
+      </div>
+    `;
+  }
+  // 初始渲染
+  renderCalculation();
+  document.getElementById('calcRefresh').addEventListener('click', renderCalculation);
+
+  // ==============================
+  // 4. 图表（总览）
+  // ==============================
+  function initCharts() {
+    // 补销比对比（按门店等级）
+    new Chart(document.getElementById('chartTier'), {
       type: 'bar',
       data: {
         labels: ['A类店', 'B类店', 'C类店'],
         datasets: [
-          { label: '固定策略', data: [0.95, 0.82, 0.68], backgroundColor: fixedColor, borderRadius: 4 },
-          { label: 'AI模型', data: [1.08, 0.99, 0.84], backgroundColor: modelColor, borderRadius: 4 }
+          { label: '固定策略', data: [0.95, 0.82, 0.68], backgroundColor: '#ff7875', borderRadius: 4 },
+          { label: 'AI模型', data: [1.08, 0.99, 0.84], backgroundColor: '#52c41a', borderRadius: 4 }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y.toFixed(2); } } }
-        },
-        scales: {
-          y: { min: 0.5, max: 1.3, ticks: { stepSize: 0.1 } }
-        },
-        // 添加理想区间参考线（通过annotation插件实现不了，用额外绘制？简化，用注释说明）
-        // 我们在HTML中用文字标注，不影响
+        plugins: { legend: { display: false } },
+        scales: { y: { min: 0.5, max: 1.3, ticks: { stepSize: 0.1 } } }
       }
     });
 
-    // ---- 2) 补销比分布（理想区间集中度） ----
-    const ctx2 = document.getElementById('chartDistribution').getContext('2d');
-    new Chart(ctx2, {
+    // 补销比分布
+    new Chart(document.getElementById('chartDistribution'), {
       type: 'bar',
       data: {
         labels: ['<0.7', '0.7-0.9', '0.9-1.1', '1.1-1.3', '>1.3'],
         datasets: [
-          { label: '固定策略', data: [8, 20, 35, 12, 5], backgroundColor: fixedColor },
-          { label: 'AI模型', data: [3, 10, 48, 6, 3], backgroundColor: modelColor }
+          { label: '固定策略', data: [8, 20, 35, 12, 5], backgroundColor: '#ff7875' },
+          { label: 'AI模型', data: [3, 10, 48, 6, 3], backgroundColor: '#52c41a' }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { position: 'top' },
-          tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + ' 个'; } } }
-        },
+        plugins: { legend: { position: 'top' } },
         scales: { y: { beginAtZero: true } }
       }
     });
 
-    // ---- 3) 系数雷达图 ----
-    const ctx3 = document.getElementById('chartRadar').getContext('2d');
-    new Chart(ctx3, {
+    // 雷达图
+    new Chart(document.getElementById('chartRadar'), {
       type: 'radar',
       data: {
         labels: ['折扣', '尺码', 'FSA', 'WOS', '生命周期', '库存健康', '趋势', '季节性'],
         datasets: [
-          { label: '固定策略', data: [0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50], borderColor: fixedColor, backgroundColor: bgFixed, pointBackgroundColor: fixedColor },
-          { label: 'AI模型', data: [0.90, 0.92, 0.88, 0.85, 0.80, 0.95, 0.82, 0.88], borderColor: modelColor, backgroundColor: bgModel, pointBackgroundColor: modelColor }
+          { label: '固定策略', data: [0.85, 0.80, 0.75, 0.70, 0.65, 0.60, 0.55, 0.50], borderColor: '#ff7875', backgroundColor: 'rgba(255,120,117,0.2)', pointBackgroundColor: '#ff7875' },
+          { label: 'AI模型', data: [0.90, 0.92, 0.88, 0.85, 0.80, 0.95, 0.82, 0.88], borderColor: '#52c41a', backgroundColor: 'rgba(82,196,26,0.2)', pointBackgroundColor: '#52c41a' }
         ]
       },
       options: {
@@ -536,27 +625,48 @@
       }
     });
 
-    // ---- 4) 平均周转天数 ----
-    const ctx4 = document.getElementById('chartTurnover').getContext('2d');
-    new Chart(ctx4, {
+    // 周转天数
+    new Chart(document.getElementById('chartTurnover'), {
       type: 'bar',
       data: {
         labels: ['A类店', 'B类店', 'C类店'],
         datasets: [
-          { label: '固定策略', data: [12, 18, 25], backgroundColor: fixedColor },
-          { label: 'AI模型', data: [9, 14, 20], backgroundColor: modelColor }
+          { label: '固定策略', data: [12, 18, 25], backgroundColor: '#ff7875' },
+          { label: 'AI模型', data: [9, 14, 20], backgroundColor: '#52c41a' }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: {
-          legend: { display: false },
-          tooltip: { callbacks: { label: function(ctx) { return ctx.dataset.label + ': ' + ctx.parsed.y + ' 天'; } } }
-        },
+        plugins: { legend: { display: false } },
         scales: { y: { beginAtZero: true } }
       }
     });
+  }
+
+  // ==============================
+  // 5. Tab 切换
+  // ==============================
+  document.querySelectorAll('.tab').forEach(tab => {
+    tab.addEventListener('click', function() {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      this.classList.add('active');
+      document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+      document.getElementById(this.dataset.tab).classList.add('active');
+      // 如果切换到计算过程，重新渲染（确保下拉值）
+      if (this.dataset.tab === 'calculation') renderCalculation();
+    });
+  });
+
+  // ==============================
+  // 6. 初始化
+  // ==============================
+  document.addEventListener('DOMContentLoaded', function() {
+    initCharts();
+    // 默认选中第一个门店和SKU
+    storeSelect.value = stores[0].id;
+    skuSelect.value = skus[0].id;
+    renderCalculation();
   });
 </script>
 
