@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI补货模型监控看板 - 完整版</title>
+  <title>AI补货模型监控看板 - 抽屉版</title>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
   <!-- Font Awesome -->
@@ -105,6 +105,8 @@
     .tag-purple { background: #f9f0ff; color: #722ed1; }
     .winner-model { background-color: #f6ffed !important; }
     .winner-fixed { background-color: #fff2f0 !important; }
+    .clickable-row { cursor: pointer; transition: background 0.1s; }
+    .clickable-row:hover { background: #e6f7ff !important; }
     .footer { text-align: center; color: #bbb; font-size: 12px; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; }
     /* 标签页 */
     .tabs { display: flex; gap: 0; margin-bottom: 24px; border-bottom: 2px solid #f0f0f0; }
@@ -135,51 +137,92 @@
       margin-left: 8px;
       border: 1px solid #b7eb8f;
     }
-    /* 筛选器 */
-    .filter-row {
-      display: flex;
-      gap: 20px;
-      flex-wrap: wrap;
-      margin-bottom: 16px;
-      align-items: center;
+    /* ===== Drawer ===== */
+    .drawer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.4);
+      z-index: 1000;
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.3s ease;
     }
-    .filter-row label { font-weight: 500; font-size: 14px; }
-    .filter-row select {
-      padding: 6px 12px;
-      border-radius: 6px;
-      border: 1px solid #ddd;
+    .drawer-overlay.open {
+      visibility: visible;
+      opacity: 1;
+    }
+    .drawer {
+      position: fixed;
+      top: 0;
+      right: 0;
+      width: 640px;
+      max-width: 90vw;
+      height: 100%;
       background: #fff;
-      font-size: 14px;
+      box-shadow: -4px 0 20px rgba(0,0,0,0.2);
+      z-index: 1001;
+      transform: translateX(100%);
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      overflow-y: auto;
+      padding: 24px 28px;
     }
-    /* 计算过程卡片 */
-    .calc-grid {
+    .drawer.open { transform: translateX(0); }
+    .drawer-close {
+      position: sticky;
+      top: 0;
+      float: right;
+      background: none;
+      border: none;
+      font-size: 28px;
+      cursor: pointer;
+      color: #999;
+      padding: 0 8px;
+    }
+    .drawer-close:hover { color: #333; }
+    .drawer h2 {
+      font-size: 20px;
+      margin: 0 0 8px 0;
+      color: #1f1f1f;
+    }
+    .drawer .subtitle {
+      color: #888;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .drawer .calc-grid {
       display: grid;
       grid-template-columns: 1fr 1fr;
       gap: 20px;
     }
-    .calc-col {
+    .drawer .calc-col {
       border-radius: 8px;
       padding: 16px;
     }
-    .calc-col.fixed { background: #fff2f0; border: 1px solid #ffccc7; }
-    .calc-col.model { background: #f6ffed; border: 1px solid #b7eb8f; }
-    .calc-col h4 {
+    .drawer .calc-col.fixed { background: #fff2f0; border: 1px solid #ffccc7; }
+    .drawer .calc-col.model { background: #f6ffed; border: 1px solid #b7eb8f; }
+    .drawer .calc-col h4 {
       text-align: center;
       border-bottom: 2px solid rgba(0,0,0,0.06);
       padding-bottom: 8px;
       margin-bottom: 12px;
       font-size: 16px;
     }
-    .calc-item {
+    .drawer .calc-item {
       display: flex;
       justify-content: space-between;
       padding: 6px 0;
       font-size: 14px;
       border-bottom: 1px dashed #eee;
     }
-    .calc-item .label { color: #666; }
-    .calc-item .value { font-weight: 600; font-family: monospace; }
-    .calc-total {
+    .drawer .calc-item .label { color: #666; }
+    .drawer .calc-item .value { font-weight: 600; font-family: monospace; }
+    .drawer .calc-total {
       margin-top: 12px;
       padding-top: 12px;
       border-top: 2px solid #333;
@@ -188,7 +231,24 @@
       display: flex;
       justify-content: space-between;
     }
-    .calc-total .value { color: #1677ff; }
+    .drawer .calc-total .value { color: #1677ff; }
+    .drawer .drawer-filter {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #eee;
+    }
+    .drawer .drawer-filter select {
+      padding: 4px 8px;
+      border-radius: 4px;
+      border: 1px solid #ddd;
+    }
+    @media (max-width: 640px) {
+      .drawer { width: 100%; max-width: 100%; padding: 16px; }
+      .drawer .calc-grid { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
@@ -196,7 +256,7 @@
 
   <!-- 头部 -->
   <div class="header">
-    <h1><i class="fas fa-robot" style="margin-right: 12px;"></i>AI补货模型监控看板（完整版）</h1>
+    <h1><i class="fas fa-robot" style="margin-right: 12px;"></i>AI补货模型监控看板（抽屉版）</h1>
     <span class="badge"><i class="fas fa-calendar-alt"></i> 数据更新：今日</span>
   </div>
 
@@ -231,7 +291,6 @@
   <div class="tabs">
     <button class="tab active" data-tab="overview">📊 总览对比</button>
     <button class="tab" data-tab="detail">📋 明细对比</button>
-    <button class="tab" data-tab="calculation">⚙️ 计算过程</button>
     <button class="tab" data-tab="alert">⚠️ 监控预警</button>
   </div>
 
@@ -284,7 +343,7 @@
   <!-- ========== TAB 2: 明细对比 ========== -->
   <div id="detail" class="tab-content">
     <div class="card">
-      <div class="card-title"><i class="fas fa-list-ul"></i> 全量明细对比（门店 × SKU）</div>
+      <div class="card-title"><i class="fas fa-list-ul"></i> 全量明细对比（点击任意行查看计算过程）</div>
       <div class="table-wrap">
         <table id="detailTable">
           <thead>
@@ -307,22 +366,7 @@
     </div>
   </div>
 
-  <!-- ========== TAB 3: 计算过程 ========== -->
-  <div id="calculation" class="tab-content">
-    <div class="card">
-      <div class="card-title"><i class="fas fa-cogs"></i> 系数计算链路（选择门店 + SKU）</div>
-      <div class="filter-row">
-        <label>门店：<select id="storeSelect"></select></label>
-        <label>SKU：<select id="skuSelect"></select></label>
-        <button id="calcRefresh" style="padding:6px 16px; background:#1677ff; color:#fff; border:none; border-radius:6px; cursor:pointer;"><i class="fas fa-sync-alt"></i> 更新</button>
-      </div>
-      <div id="calcResult" class="calc-grid">
-        <!-- 动态渲染 -->
-      </div>
-    </div>
-  </div>
-
-  <!-- ========== TAB 4: 监控预警 ========== -->
+  <!-- ========== TAB 3: 监控预警 ========== -->
   <div id="alert" class="tab-content">
     <div class="card">
       <div class="card-title"><i class="fas fa-exclamation-triangle" style="color:#faad14;"></i> 预警总览</div>
@@ -356,8 +400,24 @@
     </div>
   </div>
 
+  <!-- ===== Drawer ===== -->
+  <div class="drawer-overlay" id="drawerOverlay"></div>
+  <div class="drawer" id="drawer">
+    <button class="drawer-close" id="drawerClose">&times;</button>
+    <h2 id="drawerTitle">计算过程</h2>
+    <div class="subtitle" id="drawerSubtitle">门店 · SKU</div>
+    <div class="drawer-filter">
+      <label>门店：<select id="drawerStore"></select></label>
+      <label>SKU：<select id="drawerSku"></select></label>
+      <button id="drawerRefresh" style="padding:4px 12px; background:#1677ff; color:#fff; border:none; border-radius:4px; cursor:pointer;"><i class="fas fa-sync-alt"></i> 更新</button>
+    </div>
+    <div id="drawerContent" class="calc-grid">
+      <!-- 动态渲染 -->
+    </div>
+  </div>
+
   <div class="footer">
-    <i class="fas fa-database"></i> 数据基于模拟业务场景 · 仅供演示
+    <i class="fas fa-database"></i> 数据基于模拟业务场景 · 点击明细行可查看计算链路
   </div>
 </div>
 
@@ -405,7 +465,6 @@
     };
   }
 
-  // 为每个门店+SKU生成一组数据
   function generateData() {
     const rows = [];
     let seed = 12345;
@@ -413,13 +472,13 @@
       skus.forEach(sku => {
         const rng = seededRandom(seed++);
         const baseDemand = Math.round(200 + rng() * 400);
-        const fixedRatio = 0.7 + rng() * 0.8; // 0.7~1.5
-        const modelRatio = fixedRatio + (rng() - 0.5) * 0.4; // AI 略准
+        const fixedRatio = 0.7 + rng() * 0.8;
+        const modelRatio = fixedRatio + (rng() - 0.5) * 0.4;
         const realSales = Math.round(baseDemand * (0.8 + rng() * 0.4));
         const fixedQty = Math.round(realSales * fixedRatio);
         const modelQty = Math.round(realSales * modelRatio);
-        const fixedStockout = rng() < 0.15 ? true : false; // 15% 断货率
-        const modelStockout = rng() < 0.08 ? true : false;
+        const fixedStockout = rng() < 0.15;
+        const modelStockout = rng() < 0.08;
         const winner = Math.abs(modelRatio - 1) < Math.abs(fixedRatio - 1) ? 'AI' : '固定';
         rows.push({
           storeId: store.id,
@@ -436,7 +495,6 @@
           fixedStockout,
           modelStockout,
           winner,
-          // 系数（用于计算过程）
           fixedFactors: {
             l4wWeight: 0.7, l7dWeight: 0.3,
             discountMultiplier: 0.92, coreSizeMultiplier: 1.0,
@@ -466,14 +524,15 @@
   const dataRows = generateData();
 
   // ==============================
-  // 2. 渲染明细表格
+  // 2. 渲染明细表格（可点击行）
   // ==============================
   function renderDetailTable() {
     const tbody = document.getElementById('detailBody');
     tbody.innerHTML = '';
-    dataRows.forEach(row => {
+    dataRows.forEach((row, index) => {
       const tr = document.createElement('tr');
-      tr.className = row.winner === 'AI' ? 'winner-model' : 'winner-fixed';
+      tr.className = (row.winner === 'AI' ? 'winner-model' : 'winner-fixed') + ' clickable-row';
+      tr.dataset.index = index;
       tr.innerHTML = `
         <td>${row.storeName} (${row.storeTier})</td>
         <td>${row.skuName} <span class="tag tag-${row.skuType === 'NOS' ? 'blue' : row.skuType === 'Inline' ? 'purple' : 'orange'}">${row.skuType}</span></td>
@@ -486,41 +545,90 @@
         <td>${row.modelStockout ? '<span class="tag tag-red">是</span>' : '<span class="tag tag-green">否</span>'}</td>
         <td><span class="tag ${row.winner === 'AI' ? 'tag-green' : 'tag-red'}">${row.winner}</span></td>
       `;
+      // 点击行打开抽屉
+      tr.addEventListener('click', function() {
+        const idx = parseInt(this.dataset.index);
+        openDrawer(idx);
+      });
       tbody.appendChild(tr);
     });
   }
   renderDetailTable();
 
   // ==============================
-  // 3. 计算过程 Tab
+  // 3. Drawer 逻辑
   // ==============================
-  const storeSelect = document.getElementById('storeSelect');
-  const skuSelect = document.getElementById('skuSelect');
-  // 填充下拉
+  const drawerOverlay = document.getElementById('drawerOverlay');
+  const drawer = document.getElementById('drawer');
+  const drawerClose = document.getElementById('drawerClose');
+  const drawerStore = document.getElementById('drawerStore');
+  const drawerSku = document.getElementById('drawerSku');
+  const drawerRefresh = document.getElementById('drawerRefresh');
+  const drawerTitle = document.getElementById('drawerTitle');
+  const drawerSubtitle = document.getElementById('drawerSubtitle');
+  const drawerContent = document.getElementById('drawerContent');
+
+  // 填充抽屉下拉
   stores.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
     opt.textContent = s.name + ' (' + s.tier + ')';
-    storeSelect.appendChild(opt);
+    drawerStore.appendChild(opt);
   });
   skus.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
     opt.textContent = s.name + ' (' + s.type + ')';
-    skuSelect.appendChild(opt);
+    drawerSku.appendChild(opt);
   });
 
-  function renderCalculation() {
-    const storeId = storeSelect.value;
-    const skuId = skuSelect.value;
+  function openDrawer(index) {
+    const row = dataRows[index];
+    if (!row) return;
+    // 设置下拉值
+    drawerStore.value = row.storeId;
+    drawerSku.value = row.skuId;
+    // 更新标题
+    drawerTitle.textContent = `计算过程：${row.storeName} → ${row.skuName}`;
+    drawerSubtitle.textContent = `门店等级 ${row.storeTier}  · 商品类型 ${row.skuType}`;
+    // 渲染计算内容
+    renderDrawerContent(row);
+    // 打开抽屉
+    drawerOverlay.classList.add('open');
+    drawer.classList.add('open');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeDrawer() {
+    drawerOverlay.classList.remove('open');
+    drawer.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  drawerClose.addEventListener('click', closeDrawer);
+  drawerOverlay.addEventListener('click', closeDrawer);
+  // ESC 关闭
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeDrawer();
+  });
+
+  // 抽屉内更新按钮
+  drawerRefresh.addEventListener('click', function() {
+    const storeId = drawerStore.value;
+    const skuId = drawerSku.value;
     const row = dataRows.find(r => r.storeId === storeId && r.skuId === skuId);
     if (!row) {
-      document.getElementById('calcResult').innerHTML = '<div style="grid-column:1/3; text-align:center; padding:40px; color:#999;">未找到数据，请选择组合</div>';
+      drawerContent.innerHTML = '<div style="grid-column:1/3; text-align:center; padding:40px; color:#999;">未找到数据，请选择组合</div>';
       return;
     }
+    drawerTitle.textContent = `计算过程：${row.storeName} → ${row.skuName}`;
+    drawerSubtitle.textContent = `门店等级 ${row.storeTier}  · 商品类型 ${row.skuType}`;
+    renderDrawerContent(row);
+  });
+
+  function renderDrawerContent(row) {
     const fixed = row.fixedFactors;
     const model = row.modelFactors;
-    // 定义显示项
     const items = [
       { label: 'L4W权重', fixedKey: 'l4wWeight', modelKey: 'l4wWeight' },
       { label: 'L7D权重', fixedKey: 'l7dWeight', modelKey: 'l7dWeight' },
@@ -540,7 +648,6 @@
       fixedHtml += `<div class="calc-item"><span class="label">${item.label}</span><span class="value">${fixed[item.fixedKey] !== undefined ? fixed[item.fixedKey] : '-'}</span></div>`;
       modelHtml += `<div class="calc-item"><span class="label">${item.label}</span><span class="value">${model[item.modelKey] !== undefined ? model[item.modelKey] : '-'}</span></div>`;
     });
-    // 总乘数乘积（为了演示，直接计算）
     const fixedTotal = fixed.discountMultiplier * fixed.coreSizeMultiplier * fixed.fsaMultiplier * fixed.wosMultiplier *
                        fixed.lifecycleMultiplier * fixed.chaseHealthMultiplier * fixed.trendMultiplier * fixed.seasonMultiplier;
     const modelTotal = model.discountMultiplier * model.coreSizeMultiplier * model.fsaMultiplier * model.wosMultiplier *
@@ -548,7 +655,7 @@
     const finalFixed = Math.round(fixed.rawMin * fixedTotal);
     const finalModel = Math.round(model.rawMin * modelTotal);
 
-    document.getElementById('calcResult').innerHTML = `
+    drawerContent.innerHTML = `
       <div class="calc-col fixed">
         <h4>🔴 固定策略</h4>
         ${fixedHtml}
@@ -563,15 +670,11 @@
       </div>
     `;
   }
-  // 初始渲染
-  renderCalculation();
-  document.getElementById('calcRefresh').addEventListener('click', renderCalculation);
 
   // ==============================
   // 4. 图表（总览）
   // ==============================
   function initCharts() {
-    // 补销比对比（按门店等级）
     new Chart(document.getElementById('chartTier'), {
       type: 'bar',
       data: {
@@ -589,7 +692,6 @@
       }
     });
 
-    // 补销比分布
     new Chart(document.getElementById('chartDistribution'), {
       type: 'bar',
       data: {
@@ -607,7 +709,6 @@
       }
     });
 
-    // 雷达图
     new Chart(document.getElementById('chartRadar'), {
       type: 'radar',
       data: {
@@ -625,7 +726,6 @@
       }
     });
 
-    // 周转天数
     new Chart(document.getElementById('chartTurnover'), {
       type: 'bar',
       data: {
@@ -653,8 +753,6 @@
       this.classList.add('active');
       document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
       document.getElementById(this.dataset.tab).classList.add('active');
-      // 如果切换到计算过程，重新渲染（确保下拉值）
-      if (this.dataset.tab === 'calculation') renderCalculation();
     });
   });
 
@@ -663,10 +761,6 @@
   // ==============================
   document.addEventListener('DOMContentLoaded', function() {
     initCharts();
-    // 默认选中第一个门店和SKU
-    storeSelect.value = stores[0].id;
-    skuSelect.value = skus[0].id;
-    renderCalculation();
   });
 </script>
 
