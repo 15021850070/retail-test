@@ -3,12 +3,12 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>adidas AI 补货 · 多维度仪表板</title>
+    <title>adidas AI 补货 · 专业仪表板</title>
     <!-- ECharts CDN -->
     <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js">
     </script>
     <style>
-        /* ===== 全局重置 ===== */
+        /* ===== 全局 ===== */
         * {
             margin: 0;
             padding: 0;
@@ -17,7 +17,7 @@
 
         body {
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
-            background: #f0f2f6;
+            background: #f4f6fa;
             color: #1a1a1a;
             padding: 20px;
             min-height: 100vh;
@@ -33,36 +33,37 @@
             border-radius: 32px;
             padding: 24px 28px 32px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.06);
+            transition: all 0.2s;
         }
 
-        /* ===== 顶栏：品牌 + 面包屑 + 城市选择 ===== */
+        /* ===== 顶栏 ===== */
         .top-bar {
             display: flex;
             justify-content: space-between;
             align-items: center;
             flex-wrap: wrap;
-            gap: 16px 20px;
+            gap: 12px 20px;
             padding-bottom: 16px;
             border-bottom: 2px solid #f0f2f6;
-            margin-bottom: 20px;
+            margin-bottom: 24px;
         }
 
         .brand-area {
             display: flex;
             align-items: center;
-            gap: 16px;
+            gap: 14px;
         }
 
         .brand-icon {
-            width: 40px;
-            height: 40px;
+            width: 44px;
+            height: 44px;
             background: #1a1a1a;
-            border-radius: 10px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 800;
-            font-size: 18px;
+            font-size: 20px;
             color: #fff;
             letter-spacing: -0.5px;
             position: relative;
@@ -76,15 +77,15 @@
             position: absolute;
             top: 6px;
             right: 6px;
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             background: #e01a22;
             border-radius: 50%;
-            opacity: 0.8;
+            opacity: 0.9;
         }
         .brand-name {
             font-weight: 700;
-            font-size: 20px;
+            font-size: 22px;
             letter-spacing: -0.3px;
         }
         .brand-name small {
@@ -94,40 +95,19 @@
             margin-left: 6px;
         }
 
-        /* 面包屑 */
-        .breadcrumb {
-            font-size: 14px;
-            color: #718096;
+        .top-right {
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 20px;
             flex-wrap: wrap;
         }
-        .breadcrumb a {
-            color: #2d3748;
-            text-decoration: none;
-            font-weight: 500;
-            cursor: pointer;
-            transition: color 0.15s;
-        }
-        .breadcrumb a:hover {
-            color: #e01a22;
-        }
-        .breadcrumb .sep {
-            color: #cbd5e0;
-        }
-        .breadcrumb .current {
-            color: #1a1a1a;
-            font-weight: 600;
-        }
 
-        /* 城市单选框 */
         .city-selector {
             display: flex;
             align-items: center;
-            gap: 14px;
+            gap: 12px;
             background: #f5f7fa;
-            padding: 6px 16px 6px 18px;
+            padding: 4px 16px 4px 18px;
             border-radius: 100px;
             border: 1px solid #edf2f7;
         }
@@ -147,117 +127,121 @@
             cursor: pointer;
         }
 
-        /* ===== 导航标签 ===== */
-        .nav-tabs {
-            display: flex;
-            gap: 4px;
-            margin-bottom: 24px;
-            border-bottom: 2px solid #edf2f7;
-            padding-bottom: 2px;
-            flex-wrap: wrap;
-        }
-        .nav-tab {
-            padding: 10px 22px;
-            font-size: 14px;
-            font-weight: 600;
+        .date-badge {
+            font-size: 13px;
             color: #718096;
-            border-radius: 10px 10px 0 0;
-            cursor: pointer;
-            transition: all 0.15s;
-            border: none;
-            background: transparent;
-            letter-spacing: 0.2px;
-        }
-        .nav-tab:hover {
-            color: #2d3748;
-            background: #f7fafc;
-        }
-        .nav-tab.active {
-            color: #e01a22;
-            background: #fee9ea;
-            position: relative;
-        }
-        .nav-tab.active::after {
-            content: '';
-            position: absolute;
-            bottom: -2px;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: #e01a22;
-            border-radius: 3px 3px 0 0;
+            background: #f5f7fa;
+            padding: 6px 16px;
+            border-radius: 100px;
+            font-weight: 500;
         }
 
-        /* ===== 页面容器 ===== */
-        .page {
-            display: none;
-            animation: fadeUp 0.25s ease;
-        }
-        .page.active {
-            display: block;
-        }
-
-        @keyframes fadeUp {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* ===== 复用组件 ===== */
-        .kpi-grid {
+        /* ===== 北极星 KPI 区域 ===== */
+        .polaris-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: 1fr 1fr 1fr 1fr;
             gap: 16px;
-            margin-bottom: 24px;
+            margin-bottom: 28px;
         }
+
         .kpi-card {
             background: #f8fafc;
             border-radius: 20px;
             padding: 18px 20px 20px;
             border: 1px solid #edf2f7;
-            transition: 0.1s;
+            transition: 0.15s;
+            position: relative;
         }
         .kpi-card:hover {
             transform: translateY(-2px);
             box-shadow: 0 8px 24px rgba(0, 0, 0, 0.04);
         }
-        .kpi-label {
+        .kpi-card .label {
             font-size: 13px;
             font-weight: 500;
             color: #718096;
-            letter-spacing: 0.2px;
+            letter-spacing: 0.3px;
+            text-transform: uppercase;
             display: flex;
             align-items: center;
             gap: 6px;
-            margin-bottom: 8px;
+            margin-bottom: 6px;
         }
-        .kpi-number {
-            font-size: 30px;
+        .kpi-card .value {
+            font-size: 36px;
             font-weight: 700;
             color: #1a1a1a;
             letter-spacing: -0.5px;
+            line-height: 1.2;
         }
-        .kpi-sub {
-            font-size: 13px;
+        .kpi-card .sub {
+            font-size: 14px;
             color: #a0aec0;
             margin-top: 4px;
         }
-        .kpi-sub .highlight {
+        .kpi-card .sub .highlight {
             color: #e01a22;
             font-weight: 600;
         }
+        .kpi-card .sub .positive {
+            color: #2f855a;
+        }
+        .kpi-card .sub .negative {
+            color: #e01a22;
+        }
 
-        .chart-grid {
+        /* 补销率专用样式 */
+        .polaris-card {
+            background: linear-gradient(145deg, #ffffff, #fafbfc);
+            border: 1px solid #e01a22;
+            box-shadow: 0 4px 20px rgba(224, 26, 34, 0.08);
+        }
+        .polaris-card .value {
+            font-size: 48px;
+            color: #e01a22;
+        }
+        .polaris-card .range-indicator {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-top: 8px;
+        }
+        .polaris-card .range-bar {
+            flex: 1;
+            height: 6px;
+            background: #edf2f7;
+            border-radius: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+        .polaris-card .range-bar .fill {
+            height: 100%;
+            background: #e01a22;
+            border-radius: 10px;
+            transition: width 0.6s ease;
+        }
+        .polaris-card .range-labels {
+            display: flex;
+            justify-content: space-between;
+            font-size: 11px;
+            color: #a0aec0;
+            margin-top: 2px;
+        }
+        .polaris-card .range-labels span:first-child {
+            color: #2f855a;
+        }
+        .polaris-card .range-labels span:last-child {
+            color: #e01a22;
+        }
+
+        /* ===== 图表行 ===== */
+        .charts-row {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
-            margin-top: 16px;
+            margin-bottom: 20px;
         }
+
         .chart-card {
             background: #fafbfc;
             border-radius: 20px;
@@ -268,15 +252,24 @@
             font-size: 15px;
             font-weight: 600;
             color: #2d3748;
-            margin-bottom: 4px;
+            margin-bottom: 6px;
             padding-left: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .chart-card .chart-title .sub {
+            font-weight: 400;
+            font-size: 12px;
+            color: #a0aec0;
         }
         .chart-container {
             width: 100%;
-            height: 260px;
+            height: 280px;
         }
 
-        .table-wrap {
+        /* ===== 表格 ===== */
+        .table-section {
             margin-top: 20px;
             background: #fafbfc;
             border-radius: 20px;
@@ -284,13 +277,19 @@
             border: 1px solid #edf2f7;
             overflow-x: auto;
         }
-        .table-wrap table {
+        .table-section .table-title {
+            font-size: 15px;
+            font-weight: 600;
+            color: #2d3748;
+            margin-bottom: 12px;
+        }
+        table {
             width: 100%;
             border-collapse: collapse;
             font-size: 13px;
-            min-width: 600px;
+            min-width: 700px;
         }
-        .table-wrap th {
+        th {
             background: #f0f2f6;
             color: #4a5568;
             font-weight: 600;
@@ -300,15 +299,14 @@
             text-transform: uppercase;
             letter-spacing: 0.2px;
         }
-        .table-wrap td {
+        td {
             padding: 10px 12px;
             border-bottom: 1px solid #edf2f7;
             color: #2d3748;
         }
-        .table-wrap tr:last-child td {
+        tr:last-child td {
             border-bottom: none;
         }
-
         .badge {
             display: inline-block;
             padding: 2px 12px;
@@ -316,25 +314,29 @@
             font-size: 12px;
             font-weight: 600;
         }
-        .badge.positive {
-            background: #fee9ea;
-            color: #e01a22;
-        }
-        .badge.negative {
+        .badge.good {
             background: #e6f7ef;
             color: #2f855a;
         }
-        .badge.neutral {
-            background: #edf2f7;
-            color: #718096;
+        .badge.warn {
+            background: #fef3c7;
+            color: #b45309;
+        }
+        .badge.danger {
+            background: #fee9ea;
+            color: #e01a22;
+        }
+        .badge.ai-up {
+            background: #e01a22;
+            color: #fff;
         }
 
         /* ===== 响应式 ===== */
         @media (max-width: 1024px) {
-            .kpi-grid {
-                grid-template-columns: repeat(2, 1fr);
+            .polaris-grid {
+                grid-template-columns: 1fr 1fr;
             }
-            .chart-grid {
+            .charts-row {
                 grid-template-columns: 1fr;
             }
         }
@@ -353,22 +355,21 @@
             }
             .city-selector {
                 align-self: flex-start;
-                padding: 6px 14px;
+                padding: 4px 12px;
             }
-            .kpi-grid {
+            .polaris-grid {
                 grid-template-columns: 1fr 1fr;
                 gap: 10px;
             }
-            .kpi-number {
-                font-size: 24px;
+            .kpi-card .value {
+                font-size: 28px;
             }
-            .nav-tab {
-                padding: 8px 14px;
-                font-size: 13px;
+            .polaris-card .value {
+                font-size: 36px;
             }
         }
         @media (max-width: 440px) {
-            .kpi-grid {
+            .polaris-grid {
                 grid-template-columns: 1fr;
             }
         }
@@ -382,113 +383,67 @@
         <div class="top-bar">
             <div class="brand-area">
                 <div class="brand-icon"><span>ad</span></div>
-                <span class="brand-name">adidas <small>Retail</small></span>
+                <span class="brand-name">adidas <small>Retail AI</small></span>
             </div>
-            <div class="breadcrumb" id="breadcrumb">
-                <a href="#" data-page="overview">首页</a>
-                <span class="sep">/</span>
-                <span class="current" id="breadcrumbCurrent">总览</span>
-            </div>
-            <div class="city-selector" id="citySelector">
-                <label><input type="radio" name="city" value="上海" checked /> 上海</label>
-                <label><input type="radio" name="city" value="北京" /> 北京</label>
-                <label><input type="radio" name="city" value="广州" /> 广州</label>
-                <label><input type="radio" name="city" value="深圳" /> 深圳</label>
+            <div class="top-right">
+                <div class="city-selector" id="citySelector">
+                    <label><input type="radio" name="city" value="上海" checked /> 上海</label>
+                    <label><input type="radio" name="city" value="北京" /> 北京</label>
+                    <label><input type="radio" name="city" value="广州" /> 广州</label>
+                    <label><input type="radio" name="city" value="深圳" /> 深圳</label>
+                </div>
+                <span class="date-badge">📅 2026-07-09 · W28</span>
             </div>
         </div>
 
-        <!-- ===== 导航标签 ===== -->
-        <div class="nav-tabs" id="navTabs">
-            <button class="nav-tab active" data-page="overview">📊 总览</button>
-            <button class="nav-tab" data-page="stores">🏬 门店分析</button>
-            <button class="nav-tab" data-page="products">👟 商品分析</button>
-            <button class="nav-tab" data-page="optimize">⚡ 补货优化</button>
+        <!-- ===== 北极星指标 KPI 卡片 ===== -->
+        <div class="polaris-grid" id="polarisKpi">
+            <!-- 由 JS 动态生成 -->
         </div>
 
-        <!-- ========================================================= -->
-        <!-- 页面1: 总览 -->
-        <!-- ========================================================= -->
-        <div class="page active" id="page-overview">
-            <div class="kpi-grid" id="overviewKpi">
-                <!-- JS 动态生成 -->
+        <!-- ===== 图表行 1 ===== -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">🏬 各门店补销率 <span class="sub">(固定 vs AI)</span></div>
+                <div class="chart-container" id="chartStoreCoverage"></div>
             </div>
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <div class="chart-title">📈 补货量趋势 (近6周)</div>
-                    <div class="chart-container" id="overviewTrend"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title">📊 各品类销售额占比</div>
-                    <div class="chart-container" id="overviewPie"></div>
-                </div>
+            <div class="chart-card">
+                <div class="chart-title">🌆 各城市补销率 <span class="sub">(固定 vs AI)</span></div>
+                <div class="chart-container" id="chartCityCoverage"></div>
             </div>
         </div>
 
-        <!-- ========================================================= -->
-        <!-- 页面2: 门店分析 -->
-        <!-- ========================================================= -->
-        <div class="page" id="page-stores">
-            <div class="kpi-grid" id="storeKpi">
-                <!-- JS 动态生成 -->
+        <!-- ===== 图表行 2 ===== -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <div class="chart-title">🧥 各品类销售占比 <span class="sub">(AI策略)</span></div>
+                <div class="chart-container" id="chartCategoryPie"></div>
             </div>
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <div class="chart-title">🏷️ 门店补货量对比</div>
-                    <div class="chart-container" id="storeBar"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title">📉 门店缺货率对比</div>
-                    <div class="chart-container" id="storeStockout"></div>
-                </div>
-            </div>
-            <div class="table-wrap">
-                <table>
-                    <thead><tr><th>门店</th><th>补货量</th><th>缺货率</th><th>周转天数</th><th>销售额</th></tr></thead>
-                    <tbody id="storeTableBody"></tbody>
-                </table>
+            <div class="chart-card">
+                <div class="chart-title">👟 各品类补销率 <span class="sub">(固定 vs AI)</span></div>
+                <div class="chart-container" id="chartCategoryCoverage"></div>
             </div>
         </div>
 
-        <!-- ========================================================= -->
-        <!-- 页面3: 商品分析 -->
-        <!-- ========================================================= -->
-        <div class="page" id="page-products">
-            <div class="kpi-grid" id="productKpi">
-                <!-- JS 动态生成 -->
-            </div>
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <div class="chart-title">👟 各品类补货量</div>
-                    <div class="chart-container" id="productBar"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title">📦 库存周转率 (品类)</div>
-                    <div class="chart-container" id="productTurnover"></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ========================================================= -->
-        <!-- 页面4: 补货优化 -->
-        <!-- ========================================================= -->
-        <div class="page" id="page-optimize">
-            <div class="kpi-grid" id="optimizeKpi">
-                <!-- JS 动态生成 -->
-            </div>
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <div class="chart-title">⚡ 补货建议 vs 实际需求</div>
-                    <div class="chart-container" id="optimizeBar"></div>
-                </div>
-                <div class="chart-card">
-                    <div class="chart-title">📋 优化收益预估</div>
-                    <div class="chart-container" id="optimizeGain"></div>
-                </div>
-            </div>
-            <div style="margin-top:20px;background:#f8fafc;border-radius:20px;padding:18px 22px;border:1px solid #edf2f7;">
-                <p style="font-weight:600;color:#2d3748;margin-bottom:6px;">💡 AI 补货建议摘要</p>
-                <p id="optimizeSummary" style="color:#4a5568;font-size:14px;line-height:1.6;">加载中...</p>
-            </div>
+        <!-- ===== 门店明细表格 ===== -->
+        <div class="table-section">
+            <div class="table-title">📋 门店明细 · 补销率 & GMV</div>
+            <table>
+                <thead>
+                    <tr>
+                        <th>门店</th>
+                        <th>补货量 (件)</th>
+                        <th>销售额 (万元)</th>
+                        <th>补销率 (固定)</th>
+                        <th>补销率 (AI)</th>
+                        <th>GMV 提升</th>
+                        <th>状态</th>
+                    </tr>
+                </thead>
+                <tbody id="storeTableBody">
+                    <!-- JS 生成 -->
+                </tbody>
+            </table>
         </div>
 
     </div>
@@ -501,62 +456,75 @@
         const STORE_NAMES = ['南京路', '三里屯', '天河城', '万象城', '春熙路', '湖滨银泰', '汉街', '解放碑'];
         const CATEGORIES = ['跑步鞋', '篮球鞋', '休闲鞋', '运动服饰', '配件'];
 
-        function random(min, max) { return Math.round((Math.random() * (max - min) + min) * 10) / 10; }
-
+        // 生成较真实的补货、销售数据，补销率围绕1.0波动
         function generateCityData(city) {
-            const seed = city.length; // 简单种子使数据稳定
-            const base = (seed * 13 + 7) % 10;
-
-            // 生成门店数据
+            const seed = city.length * 7 + 3;
+            // 门店数据
             const stores = STORE_NAMES.map((name, idx) => {
-                const offset = (idx * 3 + seed) % 7;
+                const base = (idx * 5 + seed) % 13;
+                // 固定策略：补销率多在0.75~1.05之间
+                const fixedRestock = 200 + (base * 7) % 180;
+                const fixedSales = fixedRestock * (0.78 + (base % 5) * 0.04);
+                // AI策略：补销率更接近1.0，且波动更小
+                const aiRestock = 190 + (base * 6) % 160;
+                const aiSales = aiRestock * (0.92 + (base % 4) * 0.025);
                 return {
                     name: `${city}${name}`,
-                    restock: 180 + random(0, 220) + offset * 6,
-                    stockout: 3.5 + random(0, 8) + offset * 0.2,
-                    turnover: 25 + random(0, 35) + offset * 1.2,
-                    sales: 80 + random(0, 120) + offset * 4,
+                    fixed: {
+                        restock: Math.round(fixedRestock),
+                        sales: Math.round(fixedSales * 10) / 10,
+                        coverage: Math.round((fixedSales / fixedRestock) * 100) / 100
+                    },
+                    ai: {
+                        restock: Math.round(aiRestock),
+                        sales: Math.round(aiSales * 10) / 10,
+                        coverage: Math.round((aiSales / aiRestock) * 100) / 100
+                    }
                 };
             });
 
-            // 商品品类数据
+            // 汇总城市级数据（加权平均）
+            const totalFixedRestock = stores.reduce((s, d) => s + d.fixed.restock, 0);
+            const totalFixedSales = stores.reduce((s, d) => s + d.fixed.sales, 0);
+            const totalAiRestock = stores.reduce((s, d) => s + d.ai.restock, 0);
+            const totalAiSales = stores.reduce((s, d) => s + d.ai.sales, 0);
+
+            const cityFixedCoverage = totalFixedSales / totalFixedRestock;
+            const cityAiCoverage = totalAiSales / totalAiRestock;
+
+            // 品类数据
             const products = CATEGORIES.map((cat, idx) => {
-                const offset = (idx * 5 + seed) % 6;
+                const base = (idx * 11 + seed) % 9;
+                const fixedRestock = 150 + (base * 8) % 140;
+                const fixedSales = fixedRestock * (0.75 + (base % 6) * 0.05);
+                const aiRestock = 140 + (base * 7) % 130;
+                const aiSales = aiRestock * (0.90 + (base % 5) * 0.03);
                 return {
                     category: cat,
-                    restock: 120 + random(0, 180) + offset * 10,
-                    turnover: 20 + random(0, 30) + offset * 1.5,
-                    sales: 50 + random(0, 90) + offset * 3,
+                    fixed: {
+                        restock: Math.round(fixedRestock),
+                        sales: Math.round(fixedSales * 10) / 10,
+                        coverage: Math.round((fixedSales / fixedRestock) * 100) / 100
+                    },
+                    ai: {
+                        restock: Math.round(aiRestock),
+                        sales: Math.round(aiSales * 10) / 10,
+                        coverage: Math.round((aiSales / aiRestock) * 100) / 100
+                    }
                 };
             });
-
-            // 近6周趋势
-            const weeks = ['W23', 'W24', 'W25', 'W26', 'W27', 'W28'];
-            const trend = weeks.map((w, i) => ({
-                week: w,
-                fixed: 220 + random(0, 80) + (i * 3 + seed) % 12,
-                ai: 210 + random(0, 80) + (i * 4 + seed) % 14,
-            }));
-
-            // 补货优化建议（按门店）
-            const optimize = stores.map(s => ({
-                store: s.name,
-                currentRestock: s.restock,
-                suggestedRestock: Math.round(s.restock * (0.85 + random(0, 0.2))),
-                demandGap: random(-15, 25),
-            }));
 
             return {
                 city,
                 stores,
                 products,
-                trend,
-                optimize,
-                // 汇总
-                totalRestock: stores.reduce((sum, s) => sum + s.restock, 0),
-                avgStockout: stores.reduce((sum, s) => sum + s.stockout, 0) / stores.length,
-                avgTurnover: stores.reduce((sum, s) => sum + s.turnover, 0) / stores.length,
-                totalSales: stores.reduce((sum, s) => sum + s.sales, 0),
+                cityFixedCoverage,
+                cityAiCoverage,
+                totalFixedRestock,
+                totalFixedSales,
+                totalAiRestock,
+                totalAiSales,
+                gmvLift: ((totalAiSales - totalFixedSales) / totalFixedSales * 100)
             };
         }
 
@@ -568,93 +536,190 @@
         //  2. 全局状态
         // ================================================================
         let currentCity = '上海';
-        let currentPage = 'overview';
 
         // ================================================================
-        //  3. DOM 引用
+        //  3. DOM 引用 & 工具
         // ================================================================
-        const pages = {
-            overview: document.getElementById('page-overview'),
-            stores: document.getElementById('page-stores'),
-            products: document.getElementById('page-products'),
-            optimize: document.getElementById('page-optimize'),
-        };
-        const tabs = document.querySelectorAll('.nav-tab');
-        const breadcrumbCurrent = document.getElementById('breadcrumbCurrent');
         const cityRadios = document.querySelectorAll('input[name="city"]');
+        const polarisDiv = document.getElementById('polarisKpi');
+        const tableBody = document.getElementById('storeTableBody');
+
+        // 辅助：补销率状态
+        function coverageStatus(val) {
+            if (val >= 0.9 && val <= 1.1) return { text: '健康', cls: 'good' };
+            if (val >= 0.8 && val < 0.9) return { text: '偏低', cls: 'warn' };
+            if (val > 1.1 && val <= 1.2) return { text: '偏高', cls: 'warn' };
+            return { text: '异常', cls: 'danger' };
+        }
 
         // ================================================================
-        //  4. 渲染函数
+        //  4. 渲染核心
         // ================================================================
-        function renderAll() {
+        function renderDashboard() {
             const data = allData[currentCity];
             if (!data) return;
 
-            // 更新面包屑
-            const pageNames = {
-                overview: '总览',
-                stores: '门店分析',
-                products: '商品分析',
-                optimize: '补货优化'
-            };
-            breadcrumbCurrent.textContent = pageNames[currentPage] || '总览';
+            // ---- 4a. 北极星 KPI ----
+            const cityCoverageAI = data.cityAiCoverage;
+            const cityCoverageFixed = data.cityFixedCoverage;
+            const gmvFixed = data.totalFixedSales;
+            const gmvAI = data.totalAiSales;
+            const lift = data.gmvLift;
+            // 计算补销率相对于理想范围的位置 (0.8~1.2)
+            const minRange = 0.8,
+                maxRange = 1.2;
+            const clamped = Math.min(Math.max(cityCoverageAI, minRange), maxRange);
+            const percent = ((clamped - minRange) / (maxRange - minRange)) * 100;
 
-            // 根据当前页面渲染
-            if (currentPage === 'overview') renderOverview(data);
-            else if (currentPage === 'stores') renderStores(data);
-            else if (currentPage === 'products') renderProducts(data);
-            else if (currentPage === 'optimize') renderOptimize(data);
+            polarisDiv.innerHTML = `
+                <div class="kpi-card polaris-card">
+                    <div class="label">🎯 北极星 · 补销率</div>
+                    <div class="value">${cityCoverageAI.toFixed(2)}</div>
+                    <div class="range-indicator">
+                        <span style="font-size:12px;color:#718096;">0.8</span>
+                        <div class="range-bar">
+                            <div class="fill" style="width:${percent}%;"></div>
+                        </div>
+                        <span style="font-size:12px;color:#718096;">1.2</span>
+                    </div>
+                    <div class="range-labels">
+                        <span>✅ 健康区间 0.8–1.2</span>
+                        <span>固定策略: ${cityCoverageFixed.toFixed(2)}</span>
+                    </div>
+                    <div class="sub" style="margin-top:6px;">
+                        ${cityCoverageAI >= 0.8 && cityCoverageAI <= 1.2 ? '✅ 补销率健康' : '⚠️ 需关注'}
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">💰 GMV (总销售额)</div>
+                    <div class="value">¥${gmvAI.toFixed(0)}<span style="font-size:18px;font-weight:400;color:#a0aec0;margin-left:4px;">万</span></div>
+                    <div class="sub">
+                        AI 策略较固定策略 
+                        <span class="${lift > 0 ? 'positive' : 'negative'}">
+                            ${lift > 0 ? '↑' : '↓'} ${Math.abs(lift).toFixed(1)}%
+                        </span>
+                        (固定: ¥${gmvFixed.toFixed(0)}万)
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">📦 AI 补货总量</div>
+                    <div class="value">${data.totalAiRestock.toLocaleString()}</div>
+                    <div class="sub">较固定 ${((data.totalAiRestock - data.totalFixedRestock) / data.totalFixedRestock * 100).toFixed(1)}%</div>
+                </div>
+                <div class="kpi-card">
+                    <div class="label">🏷️ 覆盖门店</div>
+                    <div class="value">${data.stores.length}</div>
+                    <div class="sub">AI 补销率均值 ${data.stores.reduce((s,d) => s + d.ai.coverage, 0) / data.stores.length}</div>
+                </div>
+            `;
+
+            // ---- 4b. 图表 ----
+            renderCharts(data);
+
+            // ---- 4c. 表格 ----
+            tableBody.innerHTML = data.stores.map(store => {
+                const status = coverageStatus(store.ai.coverage);
+                const liftStore = ((store.ai.sales - store.fixed.sales) / store.fixed.sales * 100);
+                return `
+                    <tr>
+                        <td><strong>${store.name}</strong></td>
+                        <td>${store.fixed.restock} → ${store.ai.restock}</td>
+                        <td>${store.fixed.sales.toFixed(1)} → ${store.ai.sales.toFixed(1)}</td>
+                        <td>${store.fixed.coverage.toFixed(2)}</td>
+                        <td><strong>${store.ai.coverage.toFixed(2)}</strong></td>
+                        <td class="${liftStore > 0 ? 'positive' : 'negative'}">${liftStore > 0 ? '+' : ''}${liftStore.toFixed(1)}%</td>
+                        <td><span class="badge ${status.cls}">${status.text}</span></td>
+                    </tr>
+                `;
+            }).join('');
         }
 
-        // ---------- 总览 ----------
-        function renderOverview(data) {
-            const kpi = [
-                { label: '总补货量 (件)', value: data.totalRestock, sub: '较上周 +6%' },
-                { label: '平均缺货率', value: data.avgStockout.toFixed(1) + '%', sub: '较上周 -1.2%' },
-                { label: '平均周转天数', value: Math.round(data.avgTurnover) + '天', sub: '较上周 -3天' },
-                { label: '总销售额 (万元)', value: data.totalSales.toFixed(0), sub: '较上周 +8%' },
-            ];
-            document.getElementById('overviewKpi').innerHTML = kpi.map(k =>
-                `<div class="kpi-card">
-                    <div class="kpi-label">${k.label}</div>
-                    <div class="kpi-number">${k.value}</div>
-                    <div class="kpi-sub">${k.sub}</div>
-                </div>`
-            ).join('');
+        // ================================================================
+        //  5. 图表渲染
+        // ================================================================
+        function renderCharts(data) {
+            // 门店补销率柱状图 (分组)
+            const storeChart = echarts.init(document.getElementById('chartStoreCoverage'));
+            const storeNames = data.stores.map(d => d.name);
+            const fixedCover = data.stores.map(d => d.fixed.coverage);
+            const aiCover = data.stores.map(d => d.ai.coverage);
 
-            // 趋势图
-            const trendChart = echarts.init(document.getElementById('overviewTrend'));
-            trendChart.setOption({
-                tooltip: { trigger: 'axis' },
+            storeChart.setOption({
+                tooltip: {
+                    trigger: 'axis',
+                    axisPointer: { type: 'shadow' },
+                    formatter: function(params) {
+                        let html = `<strong>${params[0].axisValue}</strong><br/>`;
+                        params.forEach(p => {
+                            html += `${p.marker} ${p.seriesName}: ${p.value.toFixed(2)}<br/>`;
+                        });
+                        return html;
+                    }
+                },
                 legend: { data: ['固定策略', 'AI策略'], bottom: 0, icon: 'roundRect', itemWidth: 14, itemHeight: 8 },
-                grid: { left: '6%', right: '4%', top: '8%', bottom: '22%', containLabel: true },
-                xAxis: { type: 'category', data: data.trend.map(d => d.week), axisLine: { lineStyle: { color: '#e2e8f0' } } },
-                yAxis: { type: 'value', splitLine: { lineStyle: { color: '#edf2f7', type: 'dashed' } } },
+                grid: { left: '8%', right: '4%', top: '8%', bottom: '22%', containLabel: true },
+                xAxis: {
+                    type: 'category',
+                    data: storeNames,
+                    axisLabel: { rotate: 20, fontSize: 10, fontWeight: 500 }
+                },
+                yAxis: {
+                    type: 'value',
+                    min: 0.5,
+                    max: 1.4,
+                    splitLine: { lineStyle: { color: '#edf2f7', type: 'dashed' } },
+                    axisLabel: { fontSize: 10 }
+                },
                 series: [{
                     name: '固定策略',
-                    type: 'line',
-                    data: data.trend.map(d => d.fixed),
-                    smooth: true,
-                    lineStyle: { color: '#718096', width: 2 },
-                    itemStyle: { color: '#718096' },
-                    symbol: 'circle',
-                    symbolSize: 6
+                    type: 'bar',
+                    data: fixedCover,
+                    itemStyle: { color: '#718096', borderRadius: [4, 4, 0, 0] },
+                    barWidth: '28%',
+                    barGap: '12%'
                 }, {
                     name: 'AI策略',
-                    type: 'line',
-                    data: data.trend.map(d => d.ai),
-                    smooth: true,
-                    lineStyle: { color: '#e01a22', width: 2 },
-                    itemStyle: { color: '#e01a22' },
-                    symbol: 'circle',
-                    symbolSize: 6
+                    type: 'bar',
+                    data: aiCover,
+                    itemStyle: { color: '#e01a22', borderRadius: [4, 4, 0, 0] },
+                    barWidth: '28%'
                 }]
             });
-            trendChart.resize();
+            storeChart.resize();
 
-            // 饼图：品类销售额占比
-            const pieChart = echarts.init(document.getElementById('overviewPie'));
-            const pieData = data.products.map(p => ({ name: p.category, value: p.sales }));
+            // 城市补销率
+            const cityChart = echarts.init(document.getElementById('chartCityCoverage'));
+            const cityNames = CITIES;
+            const cityFixed = cityNames.map(c => allData[c].cityFixedCoverage);
+            const cityAi = cityNames.map(c => allData[c].cityAiCoverage);
+
+            cityChart.setOption({
+                tooltip: { trigger: 'axis' },
+                legend: { data: ['固定策略', 'AI策略'], bottom: 0, icon: 'roundRect', itemWidth: 14, itemHeight: 8 },
+                grid: { left: '8%', right: '4%', top: '8%', bottom: '22%', containLabel: true },
+                xAxis: { type: 'category', data: cityNames, axisLabel: { fontWeight: 500 } },
+                yAxis: { type: 'value', min: 0.5, max: 1.4, splitLine: { lineStyle: { color: '#edf2f7',
+                            type: 'dashed' } } },
+                series: [{
+                    name: '固定策略',
+                    type: 'bar',
+                    data: cityFixed,
+                    itemStyle: { color: '#718096', borderRadius: [4, 4, 0, 0] },
+                    barWidth: '28%',
+                    barGap: '12%'
+                }, {
+                    name: 'AI策略',
+                    type: 'bar',
+                    data: cityAi,
+                    itemStyle: { color: '#e01a22', borderRadius: [4, 4, 0, 0] },
+                    barWidth: '28%'
+                }]
+            });
+            cityChart.resize();
+
+            // 品类销售占比（饼图，基于AI策略）
+            const pieChart = echarts.init(document.getElementById('chartCategoryPie'));
+            const pieData = data.products.map(p => ({ name: p.category, value: p.ai.sales }));
             pieChart.setOption({
                 tooltip: { trigger: 'item', formatter: '{b}: {c}万元 ({d}%)' },
                 legend: { orient: 'vertical', left: 'left', bottom: 10, itemWidth: 12, itemHeight: 12 },
@@ -663,7 +728,7 @@
                     radius: ['45%', '70%'],
                     avoidLabelOverlap: true,
                     itemStyle: { borderRadius: 6, borderColor: '#fff', borderWidth: 2 },
-                    label: { show: false },
+                    label: { show: true, formatter: '{b}\n{d}%', fontSize: 11 },
                     emphasis: { scale: true },
                     data: pieData,
                     color: ['#e01a22', '#f97316', '#fbbf24', '#34d399', '#60a5fa']
@@ -671,253 +736,66 @@
             });
             pieChart.resize();
 
-            // 存储图表实例以便resize
-            window._charts = window._charts || {};
-            window._charts.overviewTrend = trendChart;
-            window._charts.overviewPie = pieChart;
-        }
+            // 品类补销率
+            const catChart = echarts.init(document.getElementById('chartCategoryCoverage'));
+            const catNames = data.products.map(p => p.category);
+            const catFixed = data.products.map(p => p.fixed.coverage);
+            const catAi = data.products.map(p => p.ai.coverage);
 
-        // ---------- 门店分析 ----------
-        function renderStores(data) {
-            const stores = data.stores;
-            const total = stores.reduce((s, d) => s + d.restock, 0);
-            const avgStock = stores.reduce((s, d) => s + d.stockout, 0) / stores.length;
-            const avgTurn = stores.reduce((s, d) => s + d.turnover, 0) / stores.length;
-            const totalSales = stores.reduce((s, d) => s + d.sales, 0);
-
-            document.getElementById('storeKpi').innerHTML = `
-                <div class="kpi-card"><div class="kpi-label">门店数</div><div class="kpi-number">${stores.length}</div></div>
-                <div class="kpi-card"><div class="kpi-label">总补货量</div><div class="kpi-number">${total}</div></div>
-                <div class="kpi-card"><div class="kpi-label">平均缺货率</div><div class="kpi-number">${avgStock.toFixed(1)}%</div></div>
-                <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-number">${totalSales.toFixed(0)}万</div></div>
-            `;
-
-            // 条形图：补货量
-            const barChart = echarts.init(document.getElementById('storeBar'));
-            barChart.setOption({
+            catChart.setOption({
                 tooltip: { trigger: 'axis' },
-                grid: { left: '8%', right: '4%', top: '6%', bottom: '16%', containLabel: true },
-                xAxis: { type: 'category', data: stores.map(s => s.name), axisLabel: { rotate: 20, fontSize: 10 } },
-                yAxis: { type: 'value', name: '件' },
+                legend: { data: ['固定策略', 'AI策略'], bottom: 0, icon: 'roundRect', itemWidth: 14, itemHeight: 8 },
+                grid: { left: '8%', right: '4%', top: '8%', bottom: '22%', containLabel: true },
+                xAxis: { type: 'category', data: catNames, axisLabel: { fontWeight: 500 } },
+                yAxis: { type: 'value', min: 0.5, max: 1.4, splitLine: { lineStyle: { color: '#edf2f7',
+                            type: 'dashed' } } },
                 series: [{
+                    name: '固定策略',
                     type: 'bar',
-                    data: stores.map(s => s.restock),
-                    itemStyle: { color: '#e01a22', borderRadius: [4, 4, 0, 0] },
-                    barWidth: '40%'
-                }]
-            });
-            barChart.resize();
-
-            // 缺货率柱状图
-            const stockChart = echarts.init(document.getElementById('storeStockout'));
-            stockChart.setOption({
-                tooltip: { trigger: 'axis' },
-                grid: { left: '8%', right: '4%', top: '6%', bottom: '16%', containLabel: true },
-                xAxis: { type: 'category', data: stores.map(s => s.name), axisLabel: { rotate: 20, fontSize: 10 } },
-                yAxis: { type: 'value', name: '%' },
-                series: [{
-                    type: 'bar',
-                    data: stores.map(s => s.stockout),
-                    itemStyle: { color: '#f97316', borderRadius: [4, 4, 0, 0] },
-                    barWidth: '40%'
-                }]
-            });
-            stockChart.resize();
-
-            // 表格
-            const tbody = document.getElementById('storeTableBody');
-            tbody.innerHTML = stores.map(s => `
-                <tr>
-                    <td><strong>${s.name}</strong></td>
-                    <td>${s.restock}</td>
-                    <td>${s.stockout.toFixed(1)}%</td>
-                    <td>${s.turnover}</td>
-                    <td>${s.sales.toFixed(0)}万</td>
-                </tr>
-            `).join('');
-
-            window._charts.storeBar = barChart;
-            window._charts.storeStockout = stockChart;
-        }
-
-        // ---------- 商品分析 ----------
-        function renderProducts(data) {
-            const prods = data.products;
-            const totalRestock = prods.reduce((s, p) => s + p.restock, 0);
-            const avgTurn = prods.reduce((s, p) => s + p.turnover, 0) / prods.length;
-            const totalSales = prods.reduce((s, p) => s + p.sales, 0);
-
-            document.getElementById('productKpi').innerHTML = `
-                <div class="kpi-card"><div class="kpi-label">品类数</div><div class="kpi-number">${prods.length}</div></div>
-                <div class="kpi-card"><div class="kpi-label">总补货量</div><div class="kpi-number">${totalRestock}</div></div>
-                <div class="kpi-card"><div class="kpi-label">平均周转</div><div class="kpi-number">${avgTurn.toFixed(1)}天</div></div>
-                <div class="kpi-card"><div class="kpi-label">总销售额</div><div class="kpi-number">${totalSales.toFixed(0)}万</div></div>
-            `;
-
-            // 品类补货量柱状图
-            const bar = echarts.init(document.getElementById('productBar'));
-            bar.setOption({
-                tooltip: { trigger: 'axis' },
-                grid: { left: '8%', right: '4%', top: '6%', bottom: '16%', containLabel: true },
-                xAxis: { type: 'category', data: prods.map(p => p.category) },
-                yAxis: { type: 'value', name: '件' },
-                series: [{
-                    type: 'bar',
-                    data: prods.map(p => p.restock),
-                    itemStyle: { color: '#3b82f6', borderRadius: [4, 4, 0, 0] },
-                    barWidth: '35%'
-                }]
-            });
-            bar.resize();
-
-            // 周转率条形图
-            const turn = echarts.init(document.getElementById('productTurnover'));
-            turn.setOption({
-                tooltip: { trigger: 'axis' },
-                grid: { left: '8%', right: '4%', top: '6%', bottom: '16%', containLabel: true },
-                xAxis: { type: 'category', data: prods.map(p => p.category) },
-                yAxis: { type: 'value', name: '天' },
-                series: [{
-                    type: 'bar',
-                    data: prods.map(p => p.turnover),
-                    itemStyle: { color: '#8b5cf6', borderRadius: [4, 4, 0, 0] },
-                    barWidth: '35%'
-                }]
-            });
-            turn.resize();
-
-            window._charts.productBar = bar;
-            window._charts.productTurnover = turn;
-        }
-
-        // ---------- 补货优化 ----------
-        function renderOptimize(data) {
-            const opt = data.optimize;
-            const totalCurrent = opt.reduce((s, o) => s + o.currentRestock, 0);
-            const totalSuggested = opt.reduce((s, o) => s + o.suggestedRestock, 0);
-            const totalGap = opt.reduce((s, o) => s + o.demandGap, 0);
-
-            document.getElementById('optimizeKpi').innerHTML = `
-                <div class="kpi-card"><div class="kpi-label">当前补货总量</div><div class="kpi-number">${totalCurrent}</div></div>
-                <div class="kpi-card"><div class="kpi-label">建议补货总量</div><div class="kpi-number">${totalSuggested}</div></div>
-                <div class="kpi-card"><div class="kpi-label">需求缺口</div><div class="kpi-number" style="color:${totalGap>0?'#e01a22':'#2f855a'}">${totalGap>0?'+':''}${totalGap}</div></div>
-                <div class="kpi-card"><div class="kpi-label">优化门店数</div><div class="kpi-number">${opt.filter(o=>Math.abs(o.demandGap)>3).length}</div></div>
-            `;
-
-            // 建议 vs 实际
-            const bar = echarts.init(document.getElementById('optimizeBar'));
-            bar.setOption({
-                tooltip: { trigger: 'axis' },
-                legend: { data: ['当前补货', '建议补货'], bottom: 0, icon: 'roundRect', itemWidth: 14, itemHeight: 8 },
-                grid: { left: '8%', right: '4%', top: '6%', bottom: '22%', containLabel: true },
-                xAxis: { type: 'category', data: opt.map(o => o.store), axisLabel: { rotate: 20, fontSize: 10 } },
-                yAxis: { type: 'value', name: '件' },
-                series: [{
-                    name: '当前补货',
-                    type: 'bar',
-                    data: opt.map(o => o.currentRestock),
+                    data: catFixed,
                     itemStyle: { color: '#718096', borderRadius: [4, 4, 0, 0] },
                     barWidth: '28%',
-                    barGap: '10%'
+                    barGap: '12%'
                 }, {
-                    name: '建议补货',
+                    name: 'AI策略',
                     type: 'bar',
-                    data: opt.map(o => o.suggestedRestock),
+                    data: catAi,
                     itemStyle: { color: '#e01a22', borderRadius: [4, 4, 0, 0] },
                     barWidth: '28%'
                 }]
             });
-            bar.resize();
+            catChart.resize();
 
-            // 收益预估（按门店显示的节省/增加）
-            const gainChart = echarts.init(document.getElementById('optimizeGain'));
-            const gainData = opt.map(o => ({
-                name: o.store,
-                value: Math.round((o.suggestedRestock - o.currentRestock) / o.currentRestock * 100)
-            }));
-            gainChart.setOption({
-                tooltip: { trigger: 'axis', formatter: function(params) { const p = params[0];
-                        return `${p.name}<br/>调整幅度: ${p.value}%`; } },
-                grid: { left: '8%', right: '4%', top: '6%', bottom: '16%', containLabel: true },
-                xAxis: { type: 'category', data: gainData.map(d => d.name), axisLabel: { rotate: 20, fontSize: 10 } },
-                yAxis: { type: 'value', name: '%' },
-                series: [{
-                    type: 'bar',
-                    data: gainData.map(d => d.value),
-                    itemStyle: {
-                        color: function(params) {
-                            return params.value >= 0 ? '#e01a22' : '#2f855a';
-                        },
-                        borderRadius: [4, 4, 0, 0]
-                    },
-                    barWidth: '35%'
-                }]
-            });
-            gainChart.resize();
-
-            // 摘要文本
-            const summary = `基于AI模型，对${data.city}的${opt.length}家门店进行补货优化分析。建议调整${opt.filter(o=>Math.abs(o.demandGap)>3).length}家门店的补货量，预计整体库存周转提升约${(Math.random()*8+5).toFixed(1)}%，缺货率降低${(Math.random()*3+1).toFixed(1)}%。`;
-            document.getElementById('optimizeSummary').textContent = summary;
-
-            window._charts.optimizeBar = bar;
-            window._charts.optimizeGain = gainChart;
+            // 存储图表实例用于resize
+            window._charts = {
+                storeChart,
+                cityChart,
+                pieChart,
+                catChart
+            };
         }
 
         // ================================================================
-        //  5. 切换城市 & 页面
+        //  6. 切换城市
         // ================================================================
         function switchCity(city) {
             if (currentCity === city) return;
             currentCity = city;
-            renderAll();
-            // 重新调整所有图表尺寸
-            setTimeout(() => {
-                Object.values(window._charts || {}).forEach(chart => { if (chart && chart.resize) chart.resize(); });
-            }, 100);
-        }
-
-        function switchPage(page) {
-            if (currentPage === page) return;
-            currentPage = page;
-            // 更新tab
-            tabs.forEach(tab => {
-                tab.classList.toggle('active', tab.dataset.page === page);
-            });
-            // 显示页面
-            Object.keys(pages).forEach(key => {
-                pages[key].classList.toggle('active', key === page);
-            });
-            renderAll();
+            renderDashboard();
+            // 图表重新调整
             setTimeout(() => {
                 Object.values(window._charts || {}).forEach(chart => { if (chart && chart.resize) chart.resize(); });
             }, 150);
         }
 
-        // ================================================================
-        //  6. 事件绑定
-        // ================================================================
-        // 城市单选框
         cityRadios.forEach(radio => {
             radio.addEventListener('change', function() {
                 if (this.checked) switchCity(this.value);
             });
         });
 
-        // 导航标签
-        tabs.forEach(tab => {
-            tab.addEventListener('click', function() {
-                switchPage(this.dataset.page);
-            });
-        });
-
-        // 面包屑点击（首页回到总览）
-        document.querySelector('.breadcrumb a').addEventListener('click', function(e) {
-            e.preventDefault();
-            switchPage('overview');
-        });
-
         // ================================================================
-        //  7. 窗口resize自适应
+        //  7. 自适应
         // ================================================================
         let resizeTimer;
         window.addEventListener('resize', () => {
@@ -932,8 +810,8 @@
         // ================================================================
         //  8. 初始化
         // ================================================================
-        renderAll();
-        console.log('✅ adidas Dashboard 多维度原型已加载，当前城市:', currentCity);
+        renderDashboard();
+        console.log('✅ 专业版 adidas 仪表板已加载');
     </script>
 
 </body>
