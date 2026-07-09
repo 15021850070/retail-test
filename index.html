@@ -3,9 +3,11 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AI补货模型监控看板 - 抽屉版</title>
+  <title>AI补货模型监控看板一期</title>
   <!-- Chart.js -->
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <!-- ChartJS DataLabels 插件 (用于在柱子上显示数值) -->
+  <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
   <!-- Font Awesome -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
   <style>
@@ -137,7 +139,7 @@
       margin-left: 8px;
       border: 1px solid #b7eb8f;
     }
-    /* ===== Drawer ===== */
+    /* Drawer */
     .drawer-overlay {
       position: fixed;
       top: 0;
@@ -150,10 +152,7 @@
       opacity: 0;
       transition: opacity 0.3s ease;
     }
-    .drawer-overlay.open {
-      visibility: visible;
-      opacity: 1;
-    }
+    .drawer-overlay.open { visibility: visible; opacity: 1; }
     .drawer {
       position: fixed;
       top: 0;
@@ -182,28 +181,10 @@
       padding: 0 8px;
     }
     .drawer-close:hover { color: #333; }
-    .drawer h2 {
-      font-size: 20px;
-      margin: 0 0 8px 0;
-      color: #1f1f1f;
-    }
-    .drawer .subtitle {
-      color: #888;
-      font-size: 14px;
-      margin-bottom: 20px;
-      display: flex;
-      gap: 12px;
-      flex-wrap: wrap;
-    }
-    .drawer .calc-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 20px;
-    }
-    .drawer .calc-col {
-      border-radius: 8px;
-      padding: 16px;
-    }
+    .drawer h2 { font-size: 20px; margin: 0 0 8px 0; color: #1f1f1f; }
+    .drawer .subtitle { color: #888; font-size: 14px; margin-bottom: 20px; display: flex; gap: 12px; flex-wrap: wrap; }
+    .drawer .calc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+    .drawer .calc-col { border-radius: 8px; padding: 16px; }
     .drawer .calc-col.fixed { background: #fff2f0; border: 1px solid #ffccc7; }
     .drawer .calc-col.model { background: #f6ffed; border: 1px solid #b7eb8f; }
     .drawer .calc-col h4 {
@@ -240,11 +221,7 @@
       padding-bottom: 12px;
       border-bottom: 1px solid #eee;
     }
-    .drawer .drawer-filter select {
-      padding: 4px 8px;
-      border-radius: 4px;
-      border: 1px solid #ddd;
-    }
+    .drawer .drawer-filter select { padding: 4px 8px; border-radius: 4px; border: 1px solid #ddd; }
     @media (max-width: 640px) {
       .drawer { width: 100%; max-width: 100%; padding: 16px; }
       .drawer .calc-grid { grid-template-columns: 1fr; }
@@ -256,7 +233,7 @@
 
   <!-- 头部 -->
   <div class="header">
-    <h1><i class="fas fa-robot" style="margin-right: 12px;"></i>AI补货模型监控看板（抽屉版）</h1>
+    <h1><i class="fas fa-robot" style="margin-right: 12px;"></i>AI补货模型监控看板（抽屉版 · 柱上标签）</h1>
     <span class="badge"><i class="fas fa-calendar-alt"></i> 数据更新：今日</span>
   </div>
 
@@ -298,12 +275,12 @@
   <div id="overview" class="tab-content active">
     <div class="row">
       <div class="card">
-        <div class="card-title"><i class="fas fa-chart-bar"></i> 补销比对比（按门店等级）</div>
+        <div class="card-title"><i class="fas fa-chart-bar"></i> 补销比对比（按门店等级）<span style="font-size:13px; font-weight:400; color:#888; margin-left:8px;">（柱上标注具体数值）</span></div>
         <div class="chart-container"><canvas id="chartTier"></canvas></div>
         <div style="font-size:13px; color:#888; margin-top:8px; text-align:center;">
           <span style="background:#ff7875; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 固定 &nbsp;
           <span style="background:#52c41a; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> AI &nbsp;
-          <span style="background:#faad14; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 理想区间
+          <span style="background:#faad14; display:inline-block; width:12px; height:12px; border-radius:3px;"></span> 理想区间 (0.9~1.1)
         </div>
       </div>
       <div class="card">
@@ -323,7 +300,7 @@
         </div>
       </div>
       <div class="card">
-        <div class="card-title"><i class="fas fa-clock"></i> 平均周转天数（按门店等级）</div>
+        <div class="card-title"><i class="fas fa-clock"></i> 平均周转天数（按门店等级）<span style="font-size:13px; font-weight:400; color:#888; margin-left:8px;">（柱上标注具体天数）</span></div>
         <div class="chart-container"><canvas id="chartTurnover"></canvas></div>
         <div style="font-size:13px; color:#888; margin-top:8px; text-align:center;">
           <span class="improve-badge"><i class="fas fa-arrow-down"></i> AI模型平均周转缩短 3.2 天</span>
@@ -423,6 +400,11 @@
 
 <script>
   // ==============================
+  // 注册 Chart.js DataLabels 插件
+  // ==============================
+  Chart.register(ChartDataLabels);
+
+  // ==============================
   // 1. 模拟数据 (10门店 × 15SKU)
   // ==============================
   const stores = [
@@ -456,7 +438,6 @@
     { id: 'C05', name: '环保系列-C05', type: 'Chase/BB', category: '上装', season: '限量', basePrice: 599 }
   ];
 
-  // 生成随机销售和补货数据（保持一致性）
   function seededRandom(seed) {
     let s = seed;
     return function() {
@@ -524,7 +505,7 @@
   const dataRows = generateData();
 
   // ==============================
-  // 2. 渲染明细表格（可点击行）
+  // 2. 渲染明细表格
   // ==============================
   function renderDetailTable() {
     const tbody = document.getElementById('detailBody');
@@ -545,7 +526,6 @@
         <td>${row.modelStockout ? '<span class="tag tag-red">是</span>' : '<span class="tag tag-green">否</span>'}</td>
         <td><span class="tag ${row.winner === 'AI' ? 'tag-green' : 'tag-red'}">${row.winner}</span></td>
       `;
-      // 点击行打开抽屉
       tr.addEventListener('click', function() {
         const idx = parseInt(this.dataset.index);
         openDrawer(idx);
@@ -568,7 +548,6 @@
   const drawerSubtitle = document.getElementById('drawerSubtitle');
   const drawerContent = document.getElementById('drawerContent');
 
-  // 填充抽屉下拉
   stores.forEach(s => {
     const opt = document.createElement('option');
     opt.value = s.id;
@@ -585,15 +564,11 @@
   function openDrawer(index) {
     const row = dataRows[index];
     if (!row) return;
-    // 设置下拉值
     drawerStore.value = row.storeId;
     drawerSku.value = row.skuId;
-    // 更新标题
     drawerTitle.textContent = `计算过程：${row.storeName} → ${row.skuName}`;
     drawerSubtitle.textContent = `门店等级 ${row.storeTier}  · 商品类型 ${row.skuType}`;
-    // 渲染计算内容
     renderDrawerContent(row);
-    // 打开抽屉
     drawerOverlay.classList.add('open');
     drawer.classList.add('open');
     document.body.style.overflow = 'hidden';
@@ -607,12 +582,10 @@
 
   drawerClose.addEventListener('click', closeDrawer);
   drawerOverlay.addEventListener('click', closeDrawer);
-  // ESC 关闭
   document.addEventListener('keydown', function(e) {
     if (e.key === 'Escape') closeDrawer();
   });
 
-  // 抽屉内更新按钮
   drawerRefresh.addEventListener('click', function() {
     const storeId = drawerStore.value;
     const skuId = drawerSku.value;
@@ -672,9 +645,10 @@
   }
 
   // ==============================
-  // 4. 图表（总览）
+  // 4. 图表（总览）- 带柱上标签
   // ==============================
   function initCharts() {
+    // --- 补销比对比 (柱上标注具体数值) ---
     new Chart(document.getElementById('chartTier'), {
       type: 'bar',
       data: {
@@ -687,11 +661,25 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          // 关键：柱上显示数值标签
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            color: '#333',
+            font: { weight: 'bold', size: 12 },
+            formatter: function(value) {
+              return value.toFixed(2);
+            }
+          }
+        },
         scales: { y: { min: 0.5, max: 1.3, ticks: { stepSize: 0.1 } } }
-      }
+      },
+      plugins: [ChartDataLabels] // 显式启用
     });
 
+    // --- 补销比分布 (不需要柱上标签，数据量多会拥挤) ---
     new Chart(document.getElementById('chartDistribution'), {
       type: 'bar',
       data: {
@@ -704,11 +692,16 @@
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { position: 'top' } },
+        plugins: {
+          legend: { position: 'top' },
+          datalabels: { display: false } // 此图不显示标签
+        },
         scales: { y: { beginAtZero: true } }
-      }
+      },
+      plugins: [ChartDataLabels]
     });
 
+    // --- 雷达图 ---
     new Chart(document.getElementById('chartRadar'), {
       type: 'radar',
       data: {
@@ -722,25 +715,43 @@
         responsive: true,
         maintainAspectRatio: false,
         scales: { r: { min: 0, max: 1.0, ticks: { stepSize: 0.2 } } },
-        plugins: { legend: { position: 'top' } }
-      }
+        plugins: {
+          legend: { position: 'top' },
+          datalabels: { display: false }
+        }
+      },
+      plugins: [ChartDataLabels]
     });
 
+    // --- 平均周转天数 (柱上标注具体天数) ---
     new Chart(document.getElementById('chartTurnover'), {
       type: 'bar',
       data: {
         labels: ['A类店', 'B类店', 'C类店'],
         datasets: [
-          { label: '固定策略', data: [12, 18, 25], backgroundColor: '#ff7875' },
-          { label: 'AI模型', data: [9, 14, 20], backgroundColor: '#52c41a' }
+          { label: '固定策略', data: [12, 18, 25], backgroundColor: '#ff7875', borderRadius: 4 },
+          { label: 'AI模型', data: [9, 14, 20], backgroundColor: '#52c41a', borderRadius: 4 }
         ]
       },
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false } },
+        plugins: {
+          legend: { display: false },
+          // 关键：柱上显示数值标签
+          datalabels: {
+            anchor: 'end',
+            align: 'top',
+            color: '#333',
+            font: { weight: 'bold', size: 12 },
+            formatter: function(value) {
+              return value + '天';
+            }
+          }
+        },
         scales: { y: { beginAtZero: true } }
-      }
+      },
+      plugins: [ChartDataLabels]
     });
   }
 
